@@ -8,4 +8,4 @@ The portfolio includes simple web-based project pages and demonstrates the engin
 
 Visit the portfolio website here:
 
-https://energizerlab.github.io/portfolio-website/
+https://energizerlab.github.io/portfolio/
