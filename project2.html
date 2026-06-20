@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Find the best angle for your solar panels — no engineering knowledge needed.">
+    <meta name="theme-color" content="#0f2f25">
+    <meta property="og:title" content="Solar Tilt Optimiser | Portfolio Project">
+    <meta property="og:description" content="Find the best angle for your solar panels — no engineering knowledge needed.">
+    <meta property="og:type" content="website">
+    <title>Solar Tilt Optimiser | Renewable Energy Project</title>
+    <style>
+        :root {
+            --ink: #102019;
+            --muted: #5b6b61;
+            --paper: #fbf7ed;
+            --surface: #fffdf7;
+            --surface-strong: #f0e6cf;
+            --line: #ded2b8;
+            --forest: #0f2f25;
+            --moss: #315f48;
+            --sun: #d9922e;
+            --sun-dark: #995d12;
+            --shadow: rgba(31, 54, 42, 0.18);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Aptos, "Segoe UI", Tahoma, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 18% 14%, rgba(217, 146, 46, 0.22), transparent 28rem),
+                radial-gradient(circle at 88% 8%, rgba(49, 95, 72, 0.16), transparent 24rem),
+                linear-gradient(180deg, #fffaf0 0%, var(--paper) 58%, #efe4cc 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-tap-highlight-color: rgba(217, 146, 46, 0.24);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(15, 47, 37, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 47, 37, 0.035) 1px, transparent 1px);
+            background-size: 3rem 3rem;
+            mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 70%);
+        }
+
+        a {
+            color: inherit;
+        }
+
+        a:focus-visible {
+            outline: 3px solid var(--sun);
+            outline-offset: 4px;
+        }
+
+        .skip-link {
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+            z-index: 10;
+            padding: 0.75rem 1rem;
+            color: white;
+            background: var(--forest);
+            border-radius: 999px;
+            transform: translateY(-150%);
+            transition: transform 180ms ease;
+        }
+
+        .skip-link:focus {
+            transform: translateY(0);
+        }
+
+        .page {
+            width: min(1120px, calc(100% - 2rem));
+            margin: 0 auto;
+            padding: 2rem 0 3rem;
+        }
+
+        .site-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 4rem;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--forest);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            text-decoration: none;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 2.5rem;
+            height: 2.5rem;
+            place-items: center;
+            color: var(--paper);
+            background: var(--forest);
+            border-radius: 0.85rem;
+            box-shadow: 0 0.8rem 2rem var(--shadow);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav a {
+            padding: 0.65rem 0.9rem;
+            color: var(--moss);
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 999px;
+            transition: color 180ms ease, background-color 180ms ease;
+        }
+
+        .nav a:hover,
+        .nav a[aria-current="page"] {
+            color: var(--forest);
+            background: rgba(49, 95, 72, 0.1);
+        }
+
+        h1,
+        h2,
+        h3,
+        p {
+            margin-top: 0;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.42fr);
+            gap: clamp(2rem, 5vw, 4.5rem);
+            align-items: end;
+            margin-bottom: 4rem;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            margin: 0 0 1rem;
+            color: var(--sun-dark);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 2rem;
+            height: 2px;
+            background: var(--sun);
+        }
+
+        h1 {
+            max-width: 13ch;
+            margin-bottom: 1.25rem;
+            color: var(--forest);
+            font-size: clamp(3.25rem, 8vw, 6.8rem);
+            line-height: 0.9;
+            letter-spacing: -0.08em;
+            text-wrap: balance;
+        }
+
+        .lead {
+            max-width: 42rem;
+            margin-bottom: 2rem;
+            color: var(--muted);
+            font-size: clamp(1.08rem, 2vw, 1.35rem);
+            text-wrap: pretty;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.85rem;
+            align-items: center;
+        }
+
+        .button,
+        .text-link {
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 3rem;
+            padding: 0.85rem 1.25rem;
+            color: #fffaf0;
+            background: var(--forest);
+            border: 1px solid var(--forest);
+            border-radius: 999px;
+            box-shadow: 0 1rem 2rem var(--shadow);
+            transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+        }
+
+        .button:hover {
+            background: var(--moss);
+            box-shadow: 0 1.25rem 2.4rem rgba(31, 54, 42, 0.24);
+            transform: translateY(-2px);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .text-link {
+            color: var(--forest);
+            transition: color 180ms ease;
+        }
+
+        .text-link:hover {
+            color: var(--sun-dark);
+        }
+
+        .project-panel {
+            position: relative;
+            padding: 1.25rem;
+            background: rgba(255, 253, 247, 0.72);
+            border: 1px solid rgba(222, 210, 184, 0.9);
+            border-radius: 2rem;
+            box-shadow: 0 1.5rem 4rem var(--shadow);
+            backdrop-filter: blur(14px);
+        }
+
+        .project-panel::before {
+            content: "";
+            position: absolute;
+            inset: -0.75rem 1.5rem auto auto;
+            width: 7rem;
+            height: 7rem;
+            background: radial-gradient(circle, rgba(217, 146, 46, 0.42), transparent 68%);
+            border-radius: 50%;
+        }
+
+        .panel-card {
+            position: relative;
+            padding: 1.25rem;
+            color: #f7f0dd;
+            background: var(--forest);
+            border-radius: 1.35rem;
+        }
+
+        .panel-label {
+            margin-bottom: 0.75rem;
+            color: #e6c582;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .panel-value {
+            margin-bottom: 1rem;
+            font-size: clamp(2.6rem, 6vw, 4rem);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -0.06em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .panel-card p:last-child {
+            margin-bottom: 0;
+            color: #d7dfd5;
+        }
+
+        .section-heading {
+            display: grid;
+            grid-template-columns: minmax(0, 0.72fr) minmax(16rem, 0.28fr);
+            gap: 1.5rem;
+            align-items: end;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            color: var(--forest);
+            font-size: clamp(2rem, 4vw, 3.8rem);
+            line-height: 0.98;
+            letter-spacing: -0.06em;
+            text-wrap: balance;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 0.72fr) minmax(16rem, 0.28fr);
+            gap: 1rem;
+            align-items: start;
+            margin-bottom: 3rem;
+        }
+
+        .card,
+        .side-card {
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.5rem;
+            box-shadow: 0 1rem 3rem rgba(31, 54, 42, 0.1);
+        }
+
+        .card {
+            padding: clamp(1.25rem, 3vw, 2rem);
+        }
+
+        .card + .card {
+            margin-top: 1rem;
+        }
+
+        .card h3,
+        .side-card h3 {
+            margin-bottom: 0.85rem;
+            color: var(--forest);
+            font-size: clamp(1.35rem, 2.4vw, 2rem);
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+        }
+
+        .card p,
+        .card li,
+        .side-card p,
+        .side-card li {
+            color: var(--muted);
+        }
+
+        .side-stack {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .side-card {
+            padding: 1.25rem;
+        }
+
+        .site-footer {
+            margin-top: 4rem;
+            padding-top: 1.5rem;
+            color: var(--muted);
+            border-top: 1px solid var(--line);
+            font-size: 0.95rem;
+        }
+
+        /* ---- solar-specific ---- */
+
+        .input-section {
+            margin-bottom: 3rem;
+        }
+
+        .slider-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1.25rem 2rem;
+            padding: clamp(1.25rem, 3vw, 2rem);
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.5rem;
+            box-shadow: 0 1rem 3rem rgba(31, 54, 42, 0.1);
+        }
+
+        .slider-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            color: var(--forest);
+        }
+
+        .slider-value {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--sun-dark);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.04em;
+            min-width: 3.5ch;
+            line-height: 1;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            flex: 1;
+            min-width: 10rem;
+            height: 0.5rem;
+            background: var(--line);
+            border-radius: 999px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--sun);
+            border-radius: 50%;
+            border: 3px solid var(--surface);
+            box-shadow: 0 0.25rem 0.75rem rgba(153, 93, 18, 0.35);
+            cursor: pointer;
+            transition: transform 120ms ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--sun);
+            border-radius: 50%;
+            border: 3px solid var(--surface);
+            box-shadow: 0 0.25rem 0.75rem rgba(153, 93, 18, 0.35);
+            cursor: pointer;
+        }
+
+        .results-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            padding: 1.25rem 1rem;
+            text-align: center;
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.35rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(31, 54, 42, 0.08);
+        }
+
+        .stat-label {
+            margin-bottom: 0.4rem;
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .stat-number {
+            color: var(--forest);
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-unit {
+            font-size: 0.65em;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .chart-section {
+            margin-bottom: 3rem;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            padding: clamp(1.25rem, 3vw, 2rem);
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.5rem;
+            box-shadow: 0 1rem 3rem rgba(31, 54, 42, 0.1);
+        }
+
+        .chart-wrapper canvas {
+            display: block;
+            width: 100%;
+            aspect-ratio: 2 / 1;
+            max-height: 22rem;
+            border-radius: 0.75rem;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--line);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .legend-swatch {
+            width: 1.25rem;
+            height: 0.6rem;
+            border-radius: 999px;
+        }
+
+        .legend-swatch.horizontal {
+            background: var(--sun);
+        }
+
+        .legend-swatch.optimal {
+            background: var(--moss);
+        }
+
+        .how-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .how-card {
+            padding: clamp(1.25rem, 2vw, 1.75rem);
+            text-align: center;
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.5rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(31, 54, 42, 0.08);
+        }
+
+        .how-step {
+            display: grid;
+            place-items: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            margin: 0 auto 0.85rem;
+            color: var(--paper);
+            background: var(--sun-dark);
+            border-radius: 50%;
+            font-size: 1.1rem;
+            font-weight: 900;
+        }
+
+        .how-card h3 {
+            font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+            margin-bottom: 0.6rem;
+        }
+
+        .how-card p {
+            font-size: 0.92rem;
+            color: var(--muted);
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 760px) {
+            .page {
+                width: min(100% - 1.25rem, 1120px);
+                padding-top: 1rem;
+            }
+
+            .site-header,
+            .hero,
+            .section-heading,
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .site-header {
+                align-items: flex-start;
+                flex-direction: column;
+                margin-bottom: 3rem;
+            }
+
+            .nav {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .nav a {
+                padding-inline: 0.55rem;
+            }
+
+            h1 {
+                max-width: 9ch;
+            }
+
+            .hero {
+                margin-bottom: 3.5rem;
+            }
+
+            .results-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .how-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .results-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .visually-hidden:not(:focus):not(:active) {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        input[type="range"]:focus-visible {
+            outline: 3px solid var(--sun);
+            outline-offset: 4px;
+        }
+
+        .svg-wrapper {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .city-table-intro {
+            color: var(--muted);
+            font-size: 0.92rem;
+            margin-top: 0.75rem;
+        }
+
+        .what-this-means {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(49, 95, 72, 0.1);
+            border-radius: 1rem;
+            color: var(--forest);
+            font-size: 0.95rem;
+        }
+
+        .chart-caption {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin-top: 1rem;
+        }
+
+        @media print {
+            body {
+                background: none !important;
+                color: #000;
+            }
+            body::before {
+                display: none !important;
+            }
+            .site-header, .hero, .input-section, .how-cards,
+            .chart-section, .side-stack, .actions, .nav {
+                break-inside: avoid;
+            }
+            .page {
+                width: 100%;
+                max-width: none;
+            }
+            .stat-card, .card, .how-card, .chart-wrapper, .slider-group {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                background: #fff;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <noscript>This interactive tool requires JavaScript.</noscript>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="page">
+        <header class="site-header">
+            <a class="brand" href="index.html" aria-label="Portfolio home">
+                <span class="brand-mark" aria-hidden="true">EL</span>
+                <span>Energy Lab</span>
+            </a>
+            <nav class="nav" aria-label="Primary navigation">
+                <a href="index.html#projects">Projects</a>
+                <a href="project2.html" aria-current="page">Tilt Optimiser</a>
+                <a href="project3.html">Battery Sizer</a>
+                <a href="project4.html">PV Designer</a>
+                <a href="https://github.com/EnergizerLab/portfolio" target="_blank" rel="noreferrer">GitHub</a>
+            </nav>
+        </header>
+
+        <main id="main">
+            <section class="hero" aria-labelledby="hero-title">
+                <div>
+                    <p class="eyebrow">Solar panel guide for the rest of us</p>
+                    <h1 id="hero-title">Get more power from your solar panels.</h1>
+                    <p class="lead">
+                        Just move the slider to your city or latitude and this tool tells you the best angle to tilt your solar panels. No engineering background needed — the numbers tell you exactly what to do.
+                    </p>
+                    <div class="svg-wrapper">
+                      <svg viewBox="0 0 240 120" width="100%" style="max-width:240px;" aria-label="Diagram showing solar panel tilt angle" role="img">
+                        <defs>
+                          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#5b6b61"/>
+                          </marker>
+                        </defs>
+                        <circle cx="212" cy="20" r="5" fill="#d9922e"/>
+                        <path d="M 212 13 L 212 10 M 212 27 L 212 30 M 205 20 L 202 20 M 219 20 L 222 20 M 217 15 L 219 13 M 207 15 L 205 13 M 217 25 L 219 27 M 207 25 L 205 27" stroke="#d9922e" stroke-width="1.3" stroke-linecap="round"/>
+                        <rect x="60" y="62" width="120" height="48" fill="none" stroke="#0f2f25" stroke-width="1.5"/>
+                        <polygon points="30,62 120,14 210,62" fill="none" stroke="#0f2f25" stroke-width="1.5"/>
+                        <polygon points="150,17 198,42.6 198,55.6 150,30" fill="#d9922e" fill-opacity="0.12" stroke="#0f2f25" stroke-width="1.2"/>
+                        <line x1="166" y1="25.5" x2="166" y2="38.5" stroke="#d9922e" stroke-width="0.6"/>
+                        <line x1="182" y1="34" x2="182" y2="47" stroke="#d9922e" stroke-width="0.6"/>
+                        <line x1="150" y1="23.5" x2="198" y2="49.1" stroke="#d9922e" stroke-width="0.6"/>
+                        <line x1="150" y1="30" x2="178" y2="30" stroke="#5b6b61" stroke-width="1" stroke-dasharray="3,2"/>
+                        <path d="M 162 30 A 12 12 0 0 1 160.6 35.6" fill="none" stroke="#5b6b61" stroke-width="1.2" marker-end="url(#arrow)"/>
+                        <text x="163" y="47" fill="#5b6b61" font-size="6.5" font-family="system-ui, -apple-system, sans-serif">tilt angle</text>
+                      </svg>
+                    </div>
+                    <div class="actions">
+                        <a class="button" href="#input-section">Try the calculator</a>
+                        <a class="text-link" href="index.html">Back to portfolio</a>
+                    </div>
+                </div>
+
+                <aside class="project-panel" aria-label="Project snapshot">
+                    <div class="panel-card">
+                        <p class="panel-label">Solar geometry tool</p>
+                        <p class="panel-value">Tilt&deg;</p>
+                        <p>Just tell us roughly where you live. The tool figures out the sun's path and finds the angle that captures the most energy year-round.</p>
+                    </div>
+                </aside>
+            </section>
+
+            <section id="input-section" class="input-section" aria-labelledby="input-heading">
+                <h2 id="input-heading" class="visually-hidden" tabindex="-1">Latitude input</h2>
+                <div class="slider-group">
+                    <span class="slider-label">
+                        <span>Latitude (&deg;N/S)</span>
+                    </span>
+                    <input type="range" id="latSlider" min="-90" max="90" value="24" step="0.5" aria-label="Latitude in degrees">
+                    <span class="slider-value" id="latDisplay" aria-live="polite">24&deg;</span>
+                </div>
+                <p class="city-table-intro">Not sure? <a href="#city-table" style="color:var(--sun-dark);font-weight:700;">See latitudes for common cities</a> or click <strong>Use my location</strong> below.</p>
+                <details id="cityTableSection" class="city-table-section">
+  <summary class="city-table-summary">
+    <span class="city-table-toggle-icon">&#9654;</span>
+    <span class="city-table-title">Browse cities by latitude</span>
+    <span class="city-table-count">22 cities</span>
+  </summary>
+  <div class="city-table-content">
+    <button id="geolocateBtn" class="city-geolocate-btn" type="button">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>
+      Use my location
+    </button>
+    <div id="geolocateMsg" class="city-geolocate-msg" aria-live="polite"></div>
+    <div class="city-table-wrapper">
+      <table class="city-table">
+        <thead>
+          <tr><th>City</th><th>Country</th><th>Latitude</th></tr>
+        </thead>
+        <tbody id="cityTableBody">
+          <tr data-lat="24.6"><td>Riyadh</td><td>Saudi Arabia</td><td>24.6</td></tr>
+          <tr data-lat="25.2"><td>Dubai</td><td>UAE</td><td>25.2</td></tr>
+          <tr data-lat="29.4"><td>Kuwait City</td><td>Kuwait</td><td>29.4</td></tr>
+          <tr data-lat="25.3"><td>Doha</td><td>Qatar</td><td>25.3</td></tr>
+          <tr data-lat="23.6"><td>Muscat</td><td>Oman</td><td>23.6</td></tr>
+          <tr data-lat="24.5"><td>Abu Dhabi</td><td>UAE</td><td>24.5</td></tr>
+          <tr data-lat="30.0"><td>Cairo</td><td>Egypt</td><td>30.0</td></tr>
+          <tr data-lat="41.0"><td>Istanbul</td><td>Turkey</td><td>41.0</td></tr>
+          <tr data-lat="51.5"><td>London</td><td>UK</td><td>51.5</td></tr>
+          <tr data-lat="40.7"><td>New York</td><td>USA</td><td>40.7</td></tr>
+          <tr data-lat="34.1"><td>Los Angeles</td><td>USA</td><td>34.1</td></tr>
+          <tr data-lat="35.7"><td>Tokyo</td><td>Japan</td><td>35.7</td></tr>
+          <tr data-lat="39.9"><td>Beijing</td><td>China</td><td>39.9</td></tr>
+          <tr data-lat="19.1"><td>Mumbai</td><td>India</td><td>19.1</td></tr>
+          <tr data-lat="-33.9"><td>Sydney</td><td>Australia</td><td>-33.9</td></tr>
+          <tr data-lat="1.3"><td>Singapore</td><td>Singapore</td><td>1.3</td></tr>
+          <tr data-lat="52.5"><td>Berlin</td><td>Germany</td><td>52.5</td></tr>
+          <tr data-lat="48.9"><td>Paris</td><td>France</td><td>48.9</td></tr>
+          <tr data-lat="41.9"><td>Rome</td><td>Italy</td><td>41.9</td></tr>
+          <tr data-lat="40.4"><td>Madrid</td><td>Spain</td><td>40.4</td></tr>
+          <tr data-lat="55.8"><td>Moscow</td><td>Russia</td><td>55.8</td></tr>
+          <tr data-lat="13.8"><td>Bangkok</td><td>Thailand</td><td>13.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</details>
+
+<style>
+.city-table-section {
+  margin: 1.5em 0;
+  border: 1px solid var(--line, #ded2b8);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--paper, #fbf7ed);
+  transition: box-shadow 0.2s;
+}
+.city-table-section[open] {
+  box-shadow: 0 2px 12px var(--shadow, rgba(0,0,0,0.08));
+}
+.city-table-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.75em 1em;
+  cursor: pointer;
+  user-select: none;
+  font-family: inherit;
+  font-size: 0.95em;
+  color: var(--ink, #102019);
+  background: var(--paper, #fbf7ed);
+  list-style: none;
+}
+.city-table-summary::-webkit-details-marker {
+  display: none;
+}
+.city-table-summary:hover {
+  background: color-mix(in srgb, var(--line, #ded2b8) 30%, var(--paper, #fbf7ed));
+}
+.city-table-toggle-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2em;
+  height: 1.2em;
+  font-size: 0.7em;
+  color: var(--sun, #d9922e);
+  transition: transform 0.25s ease;
+}
+.city-table-section[open] .city-table-toggle-icon {
+  transform: rotate(90deg);
+}
+.city-table-title {
+  flex: 1;
+  font-weight: 600;
+  color: var(--forest, #0f2f25);
+}
+.city-table-count {
+  font-size: 0.8em;
+  color: var(--muted, #5b6b61);
+  background: color-mix(in srgb, var(--line, #ded2b8) 50%, transparent);
+  padding: 0.15em 0.6em;
+  border-radius: 10px;
+}
+.city-table-content {
+  padding: 0 1em 1em;
+}
+.city-geolocate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  margin-bottom: 0.75em;
+  padding: 0.4em 0.9em;
+  font-family: inherit;
+  font-size: 0.85em;
+  font-weight: 500;
+  color: var(--paper, #fbf7ed);
+  background: var(--moss, #315f48);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+.city-geolocate-btn:focus-visible {
+  outline: 3px solid var(--sun, #d9922e);
+  outline-offset: 3px;
+}
+
+.city-geolocate-btn:hover {
+  background: var(--forest, #0f2f25);
+}
+.city-geolocate-btn:active {
+  transform: scale(0.97);
+}
+.city-geolocate-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.city-geolocate-btn svg {
+  flex-shrink: 0;
+}
+.city-geolocate-msg {
+  font-size: 0.82em;
+  color: var(--muted, #5b6b61);
+  margin-bottom: 0.6em;
+  min-height: 1.2em;
+}
+.city-geolocate-msg.error {
+  color: var(--sun-dark, #995d12);
+}
+.city-table-wrapper {
+  overflow-x: auto;
+  border-radius: 6px;
+  border: 1px solid var(--line, #ded2b8);
+}
+.city-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85em;
+  font-family: inherit;
+}
+.city-table thead {
+  background: var(--forest, #0f2f25);
+  color: var(--paper, #fbf7ed);
+}
+.city-table th {
+  padding: 0.55em 0.75em;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.city-table th:last-child {
+  text-align: right;
+}
+.city-table td {
+  padding: 0.45em 0.75em;
+  border-bottom: 1px solid var(--line, #ded2b8);
+  color: var(--ink, #102019);
+}
+.city-table td:last-child {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--moss, #315f48);
+  font-weight: 500;
+}
+.city-table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.city-table tbody tr:hover {
+  background: color-mix(in srgb, var(--sun, #d9922e) 15%, var(--paper, #fbf7ed));
+}
+.city-table tbody tr:active {
+  background: color-mix(in srgb, var(--sun, #d9922e) 30%, var(--paper, #fbf7ed));
+}
+.city-table tbody tr:last-child td {
+  border-bottom: none;
+}
+</style>
+
+<script>
+(function() {
+  function initCityTable() {
+    const slider = document.getElementById('latSlider');
+    if (!slider) return;
+
+    function clampAndSet(lat) {
+      const min = parseFloat(slider.min) || -90;
+      const max = parseFloat(slider.max) || 90;
+      const clamped = Math.min(Math.max(lat, min), max);
+      slider.value = Math.round(clamped * 10) / 10;
+      slider.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function handleRowClick(e) {
+      if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+      if (e.type === 'keydown') e.preventDefault();
+      const row = e.currentTarget;
+      const lat = parseFloat(row.getAttribute('data-lat'));
+      if (!isNaN(lat)) {
+        clampAndSet(lat);
+        const heading = document.getElementById('results-heading');
+        if (heading) {
+          heading.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    }
+
+    const rows = document.querySelectorAll('#cityTableBody tr');
+    for (let i = 0; i < rows.length; i++) {
+      rows[i].addEventListener('click', handleRowClick);
+      rows[i].addEventListener('keydown', handleRowClick);
+      rows[i].setAttribute('tabindex', '0');
+      rows[i].setAttribute('role', 'button');
+    }
+
+    const geoBtn = document.getElementById('geolocateBtn');
+    const geoMsg = document.getElementById('geolocateMsg');
+    if (geoBtn) {
+      geoBtn.addEventListener('click', function() {
+        if (!navigator.geolocation) {
+          geoMsg.textContent = 'Geolocation is not supported by your browser. Try searching for your city in the table below.';
+          geoMsg.className = 'city-geolocate-msg error';
+          return;
+        }
+        geoBtn.disabled = true;
+        geoMsg.textContent = 'Getting your location\u2026';
+        geoMsg.className = 'city-geolocate-msg';
+        navigator.geolocation.getCurrentPosition(
+          function(pos) {
+            const lat = pos.coords.latitude;
+            clampAndSet(lat);
+            geoMsg.textContent = 'Location set to ' + Math.round(lat * 10) / 10 + '\u00B0 latitude.';
+            geoMsg.className = 'city-geolocate-msg';
+            geoBtn.disabled = false;
+          },
+          function() {
+            geoMsg.textContent = 'Could not get your location. Try searching for your city in the table below.';
+            geoMsg.className = 'city-geolocate-msg error';
+            geoBtn.disabled = false;
+          },
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+        );
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCityTable);
+  } else {
+    initCityTable();
+  }
+})();
+</script>
+            </section>
+
+            <section aria-labelledby="results-heading">
+                <div class="section-heading">
+                    <h2 id="results-heading">Your results, explained simply.</h2>
+                    <p>These numbers tell you exactly how to angle your panels.</p>
+                </div>
+
+                <div class="results-row">
+                    <div class="stat-card">
+                        <p class="stat-label">Set once, year-round angle</p>
+                        <p class="stat-number"><span id="fixedTilt">__</span><span class="stat-unit">&deg;</span></p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Best for low winter sun</p>
+                        <p class="stat-number"><span id="winterTilt">__</span><span class="stat-unit">&deg;</span></p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Best for high summer sun</p>
+                        <p class="stat-number"><span id="summerTilt">__</span><span class="stat-unit">&deg;</span></p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Extra power vs flat on ground</p>
+                        <p class="stat-number"><span id="annualGain">__</span><span class="stat-unit">%</span></p>
+                    </div>
+                </div>
+                <div class="what-this-means">
+                  <strong>What this means:</strong> A set-it-and-forget panel angled at your "year-round angle" always makes more power than laying it flat on the ground. If you can adjust it twice a year, the winter and summer angles give you even more. The "Extra power" number tells you how much more electricity you get compared to flat panels.
+                </div>
+            </section>
+
+            <section class="chart-section" aria-labelledby="chart-heading">
+                <div class="section-heading">
+                    <h2 id="chart-heading">How much power you get each month.</h2>
+                    <p>The chart shows tilted panels (green) always beat flat panels (orange).</p>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="tiltChart" aria-label="Monthly solar energy comparison chart" role="img"></canvas>
+                    <noscript>This tool requires JavaScript to render the chart. Please enable JavaScript in your browser.</noscript>
+                    <div class="chart-legend">
+                        <span class="legend-item">
+                            <span class="legend-swatch horizontal" aria-hidden="true"></span>
+                            Horizontal
+                        </span>
+                        <span class="legend-item">
+                            <span class="legend-swatch optimal" aria-hidden="true"></span>
+                            Optimal tilt
+                        </span>
+                    </div>
+                    <p class="chart-caption">
+                      <strong>See the green bars?</strong> They are always taller than the orange bars. That means tilting your panels gives you more power every single month of the year.
+                    </p>
+                </div>
+            </section>
+
+            <section aria-labelledby="how-heading">
+                <div class="section-heading">
+                    <h2 id="how-heading">How it works.</h2>
+                    <p>Three ideas that explain why angle matters.</p>
+                </div>
+
+                <div class="how-cards">
+                    <article class="how-card">
+                        <span class="how-step" aria-hidden="true">1</span>
+                        <h3>The sun moves north and south across the year</h3>
+                        <p>In summer the sun is high overhead. In winter it stays low. This tool tracks where the sun is each month so it can point your panels in the right direction.</p>
+                    </article>
+                    <article class="how-card">
+                        <span class="how-step" aria-hidden="true">2</span>
+                        <h3>Your location changes how high the sun gets</h3>
+                        <p>If you live near the equator the sun is almost overhead year-round. Farther north or south the sun stays lower — so your panels need a steeper angle.</p>
+                    </article>
+                    <article class="how-card">
+                        <span class="how-step" aria-hidden="true">3</span>
+                        <h3>Angling the panel captures more direct sunlight</h3>
+                        <p>When a panel points straight at the sun it collects more energy. This tool finds the angle that faces the sun best across the whole year.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section aria-labelledby="details-title">
+                <div class="section-heading">
+                    <h2 id="details-title">Technical details.</h2>
+                    <p>Assumptions and methods behind the numbers.</p>
+                </div>
+
+                <div class="content-grid">
+                    <div>
+                        <article class="card">
+                            <h3>What should I do with these numbers?</h3>
+                            <ul style="margin:0;padding-left:1.25rem;">
+                                <li><strong>Fixed mount (most common):</strong> Set your panels at the "year-round angle" and never touch them. This gives you the best overall performance without adjustments.</li>
+                                <li><strong>Adjustable mount:</strong> If you can change the angle twice a year, use "winter angle" from October to March and "summer angle" from April to September.</li>
+                                <li><strong>Flat roof:</strong> These angles are measured from horizontal (the ground). A 24&deg; tilt means your panel is tilted 24&deg; up from flat.</li>
+                            </ul>
+                        </article>
+
+                        <article class="card">
+                            <h3>A note on real-world conditions</h3>
+                            <p>
+                                This tool uses the sun's position to calculate the best angle. In real life, local weather, clouds, shading from trees or buildings, and dust on panels also affect how much power you get. Use this as a starting point, then fine-tune based on your actual setup.
+                            </p>
+                        </article>
+                    </div>
+
+                    <aside class="side-stack" aria-label="The simple version">
+                        <section class="side-card panel-card" style="border:none;box-shadow:none;backdrop-filter:none;background:transparent;padding:0;">
+                            <div class="panel-card" style="padding:1.25rem;">
+                                <p class="panel-label">The simple version</p>
+                                <p class="panel-value" style="font-size:clamp(1.8rem,3vw,2.4rem);">Your latitude</p>
+                                <p>Tilt your panels at roughly the same angle as your latitude for the best year-round performance.</p>
+                                <hr style="border:none;border-top:1px solid rgba(255,255,255,0.15);margin:1rem 0;">
+                                <p class="panel-value" style="font-size:clamp(1.8rem,3vw,2.4rem);">Winter = steeper</p>
+                                <p>Add about 15&deg; to your latitude for winter. The low winter sun needs a steeper panel.</p>
+                                <hr style="border:none;border-top:1px solid rgba(255,255,255,0.15);margin:1rem 0;">
+                                <p class="panel-value" style="font-size:clamp(1.8rem,3vw,2.4rem);">Summer = flatter</p>
+                                <p>Subtract about 15&deg; from your latitude for summer. The high summer sun needs a flatter panel.</p>
+                            </div>
+                        </section>
+                    </aside>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <p>Published with GitHub Pages. Built as a compact record of renewable-energy engineering and coding practice.</p>
+        </footer>
+    </div>
+
+    <script>
+(function() {
+  const DEG_TO_RAD = Math.PI / 180;
+  const DAYS = [15, 46, 74, 105, 135, 166, 196, 227, 258, 288, 319, 349];
+  const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  function toRad(deg) { return deg * DEG_TO_RAD; }
+
+  function dayLengthFactor(latRad, decRad) {
+    const tanProduct = -Math.tan(latRad) * Math.tan(decRad);
+    let omegaS;
+    if (tanProduct > 1) {
+      omegaS = 0;
+    } else if (tanProduct < -1) {
+      omegaS = Math.PI;
+    } else {
+      omegaS = Math.acos(tanProduct);
+    }
+    return omegaS / Math.PI;
+  }
+
+  function declination(dayOfYear) {
+    return 23.45 * Math.sin(toRad(360 / 365 * (284 + dayOfYear)));
+  }
+
+  function elevationAtNoon(latitudeDeg, declinationDeg) {
+    return 90 - Math.abs(latitudeDeg - declinationDeg);
+  }
+
+  function relativeDailyEnergy(elevationDeg, latitudeDeg, declinationDeg) {
+    if (elevationDeg <= 0) return 0;
+    const latRad = toRad(latitudeDeg);
+    const decRad = toRad(declinationDeg);
+    return Math.sin(toRad(elevationDeg)) * dayLengthFactor(latRad, decRad);
+  }
+
+  function energyWithTilt(tiltDeg, declinationDeg, latitudeDeg) {
+    const theta = Math.abs(Math.abs(latitudeDeg - declinationDeg) - tiltDeg);
+    let cosTheta = Math.cos(toRad(theta));
+    if (cosTheta < 0) cosTheta = 0;
+    return cosTheta * dayLengthFactor(toRad(latitudeDeg), toRad(declinationDeg));
+  }
+
+  function optimalTiltForMonth(latitudeDeg, monthIndex) {
+    let dec = declination(DAYS[monthIndex]);
+    let bestTilt = 0;
+    let bestEnergy = -1;
+    for (let t = 0; t <= 90; t += 0.5) {
+      let e = energyWithTilt(t, dec, latitudeDeg);
+      if (e > bestEnergy) {
+        bestEnergy = e;
+        bestTilt = t;
+      }
+    }
+    return Math.round(bestTilt * 10) / 10;
+  }
+
+  function computeMonthlyYield(latitudeDeg) {
+    let results = [];
+    for (let m = 0; m < 12; m++) {
+      let dec = declination(DAYS[m]);
+      let elev = elevationAtNoon(latitudeDeg, dec);
+      let optTilt = optimalTiltForMonth(latitudeDeg, m);
+      let horizE = relativeDailyEnergy(elev, latitudeDeg, dec);
+      let optE = energyWithTilt(optTilt, dec, latitudeDeg);
+      results.push({
+        month: m,
+        monthName: MONTH_NAMES[m],
+        declination: Math.round(dec * 100) / 100,
+        elevation: Math.round(elev * 100) / 100,
+        optimalTilt: Math.round(optTilt * 100) / 100,
+        horizontalEnergy: Math.round(horizE * 10000) / 10000,
+        optimalEnergy: Math.round(optE * 10000) / 10000
+      });
+    }
+    return results;
+  }
+
+  function computeSummary(latitudeDeg) {
+    let months = computeMonthlyYield(latitudeDeg);
+    let sumOpt = 0, sumHoriz = 0, sumTilt = 0;
+    for (let m of months) {
+      sumOpt += m.optimalEnergy;
+      sumHoriz += m.horizontalEnergy;
+      sumTilt += m.optimalTilt;
+    }
+    let winterIdx = latitudeDeg >= 0 ? 11 : 5;
+    let summerIdx = latitudeDeg >= 0 ? 5 : 11;
+    return {
+      fixedOptimalTilt: Math.round((sumTilt / 12) * 10) / 10,
+      winterTilt: months[winterIdx].optimalTilt,
+      summerTilt: months[summerIdx].optimalTilt,
+      annualGainPercent: Math.round(((sumOpt / sumHoriz - 1) * 100) * 10) / 10
+    };
+  }
+
+  window.computeMonthlyYield = computeMonthlyYield;
+  window.computeSummary = computeSummary;
+  })();
+
+(function() {
+  const COLORS = {
+    horizontal: '#d9922e',
+    horizontalBar: '#d9922e',
+    optimal: '#0f2f25',
+    optimalBar: '#0f2f25',
+    grid: '#ded2b8',
+    text: '#5b6b61',
+    axis: '#102019',
+    background: '#fffdf7'
+  };
+
+  function renderTiltChart(canvasId, monthlyData) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    if (canvas.clientWidth === 0 || canvas.clientHeight === 0) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    const W = rect.width;
+    const H = rect.height;
+
+    ctx.fillStyle = COLORS.background;
+    ctx.fillRect(0, 0, W, H);
+
+    const pad = { left: 50, right: 20, top: 20, bottom: 40 };
+    const chartW = W - pad.left - pad.right;
+    const chartH = H - pad.top - pad.bottom;
+    if (chartW <= 0 || chartH <= 0) return;
+
+    const allZero = monthlyData.every(function(d) { return d.horizontalEnergy === 0 && d.optimalEnergy === 0; });
+
+    if (allZero) {
+      ctx.fillStyle = COLORS.text;
+      ctx.font = '13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('No data', W / 2, H / 2);
+      return;
+    }
+
+    let maxVal = 0;
+    for (let i = 0; i < monthlyData.length; i++) {
+      if (monthlyData[i].horizontalEnergy > maxVal) maxVal = monthlyData[i].horizontalEnergy;
+      if (monthlyData[i].optimalEnergy > maxVal) maxVal = monthlyData[i].optimalEnergy;
+    }
+
+    const scaleMax = maxVal < 0.01 ? 1 : Math.ceil(maxVal * 1.1);
+    const numYLabels = 4;
+    const yStep = scaleMax / (numYLabels - 1);
+
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+
+    for (let i = 0; i < numYLabels; i++) {
+      const val = i * yStep;
+      const y = pad.top + chartH - (val / scaleMax) * chartH;
+      ctx.strokeStyle = COLORS.grid;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad.left, y);
+      ctx.lineTo(W - pad.right, y);
+      ctx.stroke();
+      ctx.fillStyle = COLORS.axis;
+      ctx.fillText(Number.isInteger(val) ? val.toString() : val.toFixed(1), pad.left - 8, y);
+    }
+
+    const slotW = chartW / 12;
+    const barW = slotW / 3;
+    const gapBars = 3;
+
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+
+    for (let m = 0; m < 12; m++) {
+      const xCenter = pad.left + slotW * m + slotW / 2;
+      ctx.fillStyle = COLORS.axis;
+      ctx.fillText(monthlyData[m].monthName, xCenter, pad.top + chartH + 8);
+
+      const hVal = monthlyData[m].horizontalEnergy;
+      const oVal = monthlyData[m].optimalEnergy;
+      const hH = (hVal / scaleMax) * chartH;
+      const oH = (oVal / scaleMax) * chartH;
+      const r = 3;
+
+      ctx.fillStyle = COLORS.horizontalBar;
+      ctx.beginPath();
+      const hx = xCenter - barW - gapBars / 2;
+      const hy = pad.top + chartH - hH;
+      ctx.moveTo(hx + r, hy);
+      ctx.lineTo(hx + barW - r, hy);
+      ctx.quadraticCurveTo(hx + barW, hy, hx + barW, hy + r);
+      ctx.lineTo(hx + barW, hy + hH);
+      ctx.lineTo(hx, hy + hH);
+      ctx.lineTo(hx, hy + r);
+      ctx.quadraticCurveTo(hx, hy, hx + r, hy);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = COLORS.optimalBar;
+      ctx.beginPath();
+      const ox = xCenter + gapBars / 2;
+      const oy = pad.top + chartH - oH;
+      ctx.moveTo(ox + r, oy);
+      ctx.lineTo(ox + barW - r, oy);
+      ctx.quadraticCurveTo(ox + barW, oy, ox + barW, oy + r);
+      ctx.lineTo(ox + barW, oy + oH);
+      ctx.lineTo(ox, oy + oH);
+      ctx.lineTo(ox, oy + r);
+      ctx.quadraticCurveTo(ox, oy, ox + r, oy);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    const legendItems = [
+      { label: 'Horizontal', color: COLORS.horizontalBar },
+      { label: 'Optimal', color: COLORS.optimalBar }
+    ];
+
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+
+    let lx = W - pad.right - 10;
+    for (let i = legendItems.length - 1; i >= 0; i--) {
+      lx -= ctx.measureText(legendItems[i].label).width + 14;
+    }
+
+    for (let i = 0; i < legendItems.length; i++) {
+      ctx.fillStyle = legendItems[i].color;
+      ctx.fillRect(lx, pad.top + 6, 10, 10);
+      ctx.fillStyle = COLORS.axis;
+      ctx.fillText(legendItems[i].label, lx + 14, pad.top + 11);
+      lx += ctx.measureText(legendItems[i].label).width + 14 + 10;
+    }
+  }
+
+  window.renderTiltChart = renderTiltChart;
+})();
+
+(function() {
+  const slider = document.getElementById('latSlider');
+  const latDisplay = document.getElementById('latDisplay');
+  const fixedTilt = document.getElementById('fixedTilt');
+  const winterTilt = document.getElementById('winterTilt');
+  const summerTilt = document.getElementById('summerTilt');
+  const annualGain = document.getElementById('annualGain');
+
+  function update(lat) {
+    lat = parseFloat(lat);
+    if (!latDisplay || !fixedTilt || !winterTilt || !summerTilt || !annualGain) return;
+    latDisplay.textContent = lat + '\u00B0';
+    const summary = computeSummary(lat);
+    const monthly = computeMonthlyYield(lat);
+    fixedTilt.textContent = summary.fixedOptimalTilt;
+    winterTilt.textContent = summary.winterTilt;
+    summerTilt.textContent = summary.summerTilt;
+    annualGain.textContent = summary.annualGainPercent;
+    renderTiltChart('tiltChart', monthly);
+  }
+
+  slider.addEventListener('input', function() {
+    update(this.value);
+  });
+
+  update(slider.value);
+})();
+</script>
+</body>
+</html>

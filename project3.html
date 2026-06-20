@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Size your battery bank for Saudi homes and off-grid systems — no engineering knowledge needed.">
+    <meta name="theme-color" content="#0f2f25">
+    <meta property="og:title" content="Battery Storage Sizing Tool | Portfolio Project">
+    <meta property="og:description" content="Size your off-grid battery bank — no engineering knowledge needed.">
+    <meta property="og:type" content="website">
+    <title>Battery Storage Sizing Tool | Renewable Energy Project</title>
+    <style>
+        :root {
+            --ink: #102019;
+            --muted: #5b6b61;
+            --paper: #fbf7ed;
+            --surface: #fffdf7;
+            --surface-strong: #f0e6cf;
+            --line: #ded2b8;
+            --forest: #0f2f25;
+            --moss: #315f48;
+            --sun: #d9922e;
+            --sun-dark: #995d12;
+            --shadow: rgba(31, 54, 42, 0.18);
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: Aptos, "Segoe UI", Tahoma, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 18% 14%, rgba(217, 146, 46, 0.22), transparent 28rem),
+                radial-gradient(circle at 88% 8%, rgba(49, 95, 72, 0.16), transparent 24rem),
+                linear-gradient(180deg, #fffaf0 0%, var(--paper) 58%, #efe4cc 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-tap-highlight-color: rgba(217, 146, 46, 0.24);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(15, 47, 37, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 47, 37, 0.035) 1px, transparent 1px);
+            background-size: 3rem 3rem;
+            mask-image: linear-gradient(180deg, rgba(0,0,0,0.72), transparent 70%);
+        }
+
+        a { color: inherit; }
+
+        a:focus-visible {
+            outline: 3px solid var(--sun-dark);
+            outline-offset: 4px;
+        }
+
+        .skip-link {
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+            z-index: 10;
+            padding: 0.75rem 1rem;
+            color: white;
+            background: var(--forest);
+            border-radius: 999px;
+            transform: translateY(-150%);
+            transition: transform 180ms ease;
+        }
+
+        .skip-link:focus { transform: translateY(0); }
+
+        .page {
+            width: min(1120px, calc(100% - 2rem));
+            margin: 0 auto;
+            padding: 2rem 0 3rem;
+        }
+
+        .site-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 4rem;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--forest);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            text-decoration: none;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 2.5rem;
+            height: 2.5rem;
+            place-items: center;
+            color: var(--paper);
+            background: var(--forest);
+            border-radius: 0.85rem;
+            box-shadow: 0 0.8rem 2rem var(--shadow);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav a {
+            padding: 0.65rem 0.9rem;
+            color: var(--moss);
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 999px;
+            transition: color 180ms ease, background-color 180ms ease;
+        }
+
+        .nav a:hover,
+        .nav a[aria-current="page"] {
+            color: var(--forest);
+            background: rgba(49, 95, 72, 0.1);
+        }
+
+        h1, h2, h3, p { margin-top: 0; }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.42fr);
+            gap: clamp(2rem, 5vw, 4.5rem);
+            align-items: end;
+            margin-bottom: 4rem;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            margin: 0 0 1rem;
+            color: var(--sun-dark);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 2rem;
+            height: 2px;
+            background: var(--sun);
+        }
+
+        h1 {
+            max-width: 13ch;
+            margin-bottom: 1.25rem;
+            color: var(--forest);
+            font-size: clamp(3.25rem, 8vw, 6.8rem);
+            line-height: 0.9;
+            letter-spacing: -0.08em;
+            text-wrap: balance;
+        }
+
+        .lead {
+            max-width: 42rem;
+            margin-bottom: 2rem;
+            color: var(--muted);
+            font-size: clamp(1.08rem, 2vw, 1.35rem);
+            text-wrap: pretty;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.85rem;
+            align-items: center;
+        }
+
+        .button, .text-link {
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 3rem;
+            padding: 0.85rem 1.25rem;
+            color: #fffaf0;
+            background: var(--forest);
+            border: 1px solid var(--forest);
+            border-radius: 999px;
+            box-shadow: 0 1rem 2rem var(--shadow);
+            transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+        }
+
+        .button:hover {
+            background: var(--moss);
+            box-shadow: 0 1.25rem 2.4rem rgba(31, 54, 42, 0.24);
+            transform: translateY(-2px);
+        }
+
+        .button:active { transform: translateY(0); }
+
+        .text-link {
+            color: var(--forest);
+            transition: color 180ms ease;
+        }
+
+        .text-link:hover { color: var(--sun-dark); }
+
+        .project-panel {
+            position: relative;
+            padding: 1.25rem;
+            background: rgba(255, 253, 247, 0.72);
+            border: 1px solid rgba(222, 210, 184, 0.9);
+            border-radius: 2rem;
+            box-shadow: 0 1.5rem 4rem var(--shadow);
+            backdrop-filter: blur(14px);
+        }
+
+        .project-panel::before {
+            content: "";
+            position: absolute;
+            inset: -0.75rem 1.5rem auto auto;
+            width: 7rem;
+            height: 7rem;
+            background: radial-gradient(circle, rgba(217, 146, 46, 0.42), transparent 68%);
+            border-radius: 50%;
+        }
+
+        .panel-card {
+            position: relative;
+            padding: 1.25rem;
+            color: #f7f0dd;
+            background: var(--forest);
+            border-radius: 1.35rem;
+        }
+
+        .panel-label {
+            margin-bottom: 0.75rem;
+            color: #e6c582;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .panel-value {
+            margin-bottom: 1rem;
+            font-size: clamp(2.6rem, 6vw, 4rem);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -0.06em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .panel-card p:last-child {
+            margin-bottom: 0;
+            color: #d7dfd5;
+        }
+
+        .section-heading {
+            display: grid;
+            grid-template-columns: minmax(0, 0.72fr) minmax(16rem, 0.28fr);
+            gap: 1.5rem;
+            align-items: end;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            color: var(--forest);
+            font-size: clamp(2rem, 4vw, 3.8rem);
+            line-height: 0.98;
+            letter-spacing: -0.06em;
+            text-wrap: balance;
+        }
+
+        .section-heading p { color: var(--muted); }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 0.72fr) minmax(16rem, 0.28fr);
+            gap: 1rem;
+            align-items: start;
+            margin-bottom: 3rem;
+        }
+
+        .card, .side-card {
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.5rem;
+            box-shadow: 0 1rem 3rem rgba(31, 54, 42, 0.1);
+        }
+
+        .card {
+            padding: clamp(1.25rem, 3vw, 2rem);
+        }
+
+        .card + .card { margin-top: 1rem; }
+
+        .card h3, .side-card h3 {
+            margin-bottom: 0.85rem;
+            color: var(--forest);
+            font-size: clamp(1.35rem, 2.4vw, 2rem);
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+        }
+
+        .card p, .card li, .side-card p, .side-card li { color: var(--muted); }
+
+        .side-stack { display: grid; gap: 1rem; }
+
+        .side-card { padding: 1.25rem; }
+
+        .site-footer {
+            margin-top: 4rem;
+            padding-top: 1.5rem;
+            color: var(--muted);
+            border-top: 1px solid var(--line);
+            font-size: 0.95rem;
+        }
+
+        /* ---- battery-specific ---- */
+
+        .input-section { margin-bottom: 3rem; }
+
+        .slider-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1.25rem 2rem;
+            padding: clamp(1.25rem, 3vw, 2rem);
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.5rem;
+            box-shadow: 0 1rem 3rem rgba(31, 54, 42, 0.1);
+        }
+
+        .slider-group + .slider-group { margin-top: 1rem; }
+
+        .slider-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            color: var(--forest);
+            cursor: pointer;
+        }
+
+        .slider-value {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--sun-dark);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.04em;
+            min-width: 3.5ch;
+            line-height: 1;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            flex: 1;
+            min-width: 10rem;
+            height: 0.5rem;
+            background: var(--line);
+            border-radius: 999px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--sun-dark);
+            border-radius: 50%;
+            border: 3px solid var(--surface);
+            box-shadow: 0 0.25rem 0.75rem rgba(153, 93, 18, 0.35);
+            cursor: pointer;
+            transition: transform 120ms ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--sun-dark);
+            border-radius: 50%;
+            border: 3px solid var(--surface);
+            box-shadow: 0 0.25rem 0.75rem rgba(153, 93, 18, 0.35);
+            cursor: pointer;
+        }
+
+        .dod-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem 1rem;
+            margin-top: 0.25rem;
+        }
+
+        .dod-preset {
+            padding: 0.4rem 0.75rem;
+            min-height: 44px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--moss);
+            background: rgba(49, 95, 72, 0.08);
+            border: 1px solid transparent;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: color 120ms ease, background-color 120ms ease, border-color 120ms ease;
+        }
+
+        .dod-preset:hover {
+            background: rgba(49, 95, 72, 0.16);
+        }
+
+        .dod-preset:focus-visible {
+            outline: 3px solid var(--sun-dark);
+            outline-offset: 3px;
+        }
+
+        .dod-preset.active {
+            color: var(--paper);
+            background: var(--moss);
+            border-color: var(--moss);
+        }
+
+        .helper-text {
+            margin-top: 0.35rem;
+            color: var(--muted);
+            font-size: 0.82rem;
+            font-weight: 400;
+            width: 100%;
+        }
+
+        .result-summary {
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            background: rgba(49, 95, 72, 0.1);
+            border-radius: 1rem;
+            color: var(--forest);
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        .safety-box {
+            padding: 1rem 1.25rem;
+            margin-bottom: 2rem;
+            background: rgba(153, 93, 18, 0.08);
+            border: 1px solid rgba(217, 146, 46, 0.35);
+            border-radius: 1rem;
+            color: var(--ink);
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+
+        .safety-box strong {
+            color: var(--sun-dark);
+        }
+
+        .results-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            padding: 1.25rem 1rem;
+            text-align: center;
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.35rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(31, 54, 42, 0.08);
+        }
+
+        .stat-label {
+            margin-bottom: 0.4rem;
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .stat-number {
+            color: var(--forest);
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            font-variant-numeric: tabular-nums;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-unit {
+            font-size: 0.65em;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .select-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1rem 2rem;
+            padding: clamp(1.25rem, 3vw, 2rem);
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.5rem;
+            box-shadow: 0 1rem 3rem rgba(31, 54, 42, 0.1);
+        }
+
+        .select-group label {
+            font-weight: 800;
+            color: var(--forest);
+        }
+
+        select, input[type="number"] {
+            font-family: inherit;
+            font-size: 0.95rem;
+            padding: 0.5rem 0.75rem;
+            color: var(--ink);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 0.75rem;
+        }
+
+        select:focus-visible,
+        input[type="number"]:focus-visible,
+        input[type="radio"]:focus-visible {
+            outline: 3px solid var(--sun-dark);
+            outline-offset: 2px;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem 1.5rem;
+        }
+
+        .radio-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 700;
+            color: var(--moss);
+            cursor: pointer;
+        }
+
+        .custom-fields {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem 1.5rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(222, 210, 184, 0.2);
+            border-radius: 1rem;
+        }
+
+        .custom-fields label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-weight: 700;
+            color: var(--forest);
+        }
+
+        .custom-fields input[type="number"] {
+            width: 6rem;
+        }
+
+        .derating-display {
+            font-weight: 900;
+            color: var(--sun-dark);
+            font-variant-numeric: tabular-nums;
+            min-width: 2.5ch;
+        }
+
+        .what-this-means {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(49, 95, 72, 0.1);
+            border-radius: 1rem;
+            color: var(--forest);
+            font-size: 0.95rem;
+        }
+
+        .how-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .how-card {
+            padding: clamp(1.25rem, 2vw, 1.75rem);
+            text-align: center;
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.5rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(31, 54, 42, 0.08);
+        }
+
+        .how-step {
+            display: grid;
+            place-items: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            margin: 0 auto 0.85rem;
+            color: var(--paper);
+            background: var(--sun-dark);
+            border-radius: 50%;
+            font-size: 1.1rem;
+            font-weight: 900;
+        }
+
+        .how-card h3 {
+            font-size: clamp(1.1rem, 1.6vw, 1.4rem);
+            margin-bottom: 0.6rem;
+        }
+
+        .how-card p {
+            font-size: 0.92rem;
+            color: var(--muted);
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 760px) {
+            .page {
+                width: min(100% - 1.25rem, 1120px);
+                padding-top: 1rem;
+            }
+
+            .site-header,
+            .hero,
+            .section-heading,
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .site-header {
+                align-items: flex-start;
+                flex-direction: column;
+                margin-bottom: 3rem;
+            }
+
+            .nav {
+                width: 100%;
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }
+
+            .nav a { padding-inline: 0.55rem; }
+
+            h1 { max-width: 9ch; }
+
+            .hero { margin-bottom: 3.5rem; }
+
+            .results-row { grid-template-columns: repeat(2, 1fr); }
+
+            .how-cards { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .results-row { grid-template-columns: 1fr; }
+        }
+
+        .visually-hidden:not(:focus):not(:active) {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        input[type="range"]:focus-visible {
+            outline: 3px solid var(--sun-dark);
+            outline-offset: 4px;
+        }
+
+        @media print {
+            body { background: none !important; color: #000; }
+            body::before { display: none !important; }
+            .site-header, .hero, .input-section, .how-cards,
+            .side-stack, .actions, .nav { break-inside: avoid; }
+            .page { width: 100%; max-width: none; }
+            .stat-card, .card, .how-card, .slider-group, .select-group {
+                box-shadow: none;
+                border: 1px solid #ccc;
+                background: #fff;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <noscript>This interactive tool requires JavaScript.</noscript>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <div class="page">
+        <header class="site-header">
+            <a class="brand" href="index.html" aria-label="Portfolio home">
+                <span class="brand-mark" aria-hidden="true">EL</span>
+                <span>Energy Lab</span>
+            </a>
+            <nav class="nav" aria-label="Primary navigation">
+                <a href="index.html#projects">Projects</a>
+                <a href="project2.html">Tilt Optimiser</a>
+                <a href="project3.html" aria-current="page">Battery Sizer</a>
+                <a href="project4.html">PV Designer</a>
+                <a href="https://github.com/EnergizerLab/portfolio" target="_blank" rel="noreferrer">GitHub</a>
+            </nav>
+        </header>
+
+        <main id="main" tabindex="-1">
+            <section class="hero" aria-labelledby="hero-title">
+                <div>
+                    <p class="eyebrow">Off-grid energy storage, simplified</p>
+                    <h1 id="hero-title">Size your battery bank in seconds.</h1>
+                    <p class="lead">
+                        Built for Saudi conditions. Tell us how much energy you use per day, how long you need backup, and what batteries you have. The tool figures out how many you need and how to wire them.
+                    </p>
+                    <div style="text-align:center;margin-bottom:1rem;">
+                        <svg viewBox="0 0 240 120" width="100%" style="max-width:200px;" aria-label="Diagram showing battery bank series-parallel configuration" role="img">
+                            <rect x="10" y="30" width="40" height="60" rx="4" fill="none" stroke="#0f2f25" stroke-width="1.5"/>
+                            <rect x="10" y="34" width="40" height="8" rx="2" fill="#d9922e" opacity="0.5"/>
+                            <text x="30" y="76" text-anchor="middle" fill="#5b6b61" font-size="7" font-family="sans-serif">12V</text>
+                            <rect x="10" y="88" width="40" height="2" rx="1" fill="#0f2f25"/>
+                            <text x="30" y="105" text-anchor="middle" fill="#5b6b61" font-size="6" font-family="sans-serif">SERIES</text>
+                            <rect x="100" y="30" width="40" height="60" rx="4" fill="none" stroke="#0f2f25" stroke-width="1.5"/>
+                            <rect x="100" y="34" width="40" height="8" rx="2" fill="#d9922e" opacity="0.5"/>
+                            <text x="120" y="76" text-anchor="middle" fill="#5b6b61" font-size="7" font-family="sans-serif">12V</text>
+                            <rect x="100" y="88" width="40" height="2" rx="1" fill="#0f2f25"/>
+                            <line x1="50" y1="60" x2="100" y2="60" stroke="#5b6b61" stroke-width="1" stroke-dasharray="3,2"/>
+                            <text x="75" y="55" text-anchor="middle" fill="#5b6b61" font-size="6" font-family="sans-serif">PARALLEL</text>
+                        </svg>
+                    </div>
+                    <div class="actions">
+                        <a class="button" href="#input-section">Try the calculator</a>
+                        <a class="text-link" href="index.html">Back to portfolio</a>
+                    </div>
+                </div>
+
+                <aside class="project-panel" aria-label="Project snapshot">
+                    <div class="panel-card">
+                        <p class="panel-label">Battery bank calculator</p>
+                        <p class="panel-value">kWh</p>
+                        <p>Enter your daily energy use, backup days needed, and battery type. The tool handles temperature derating, depth-of-discharge limits, and series-parallel wiring automatically.</p>
+                    </div>
+                </aside>
+            </section>
+
+            <section id="input-section" class="input-section" aria-labelledby="input-heading">
+                <h2 id="input-heading" class="visually-hidden" tabindex="-1">Calculator inputs</h2>
+
+                <div class="slider-group">
+                    <label for="dailyLoad" class="slider-label">Daily energy use</label>
+                    <input type="range" id="dailyLoad" min="1" max="90" step="1" value="40" aria-label="Daily energy consumption in kWh">
+                    <output class="slider-value" id="dailyLoadDisplay">40</output>
+                    <span style="font-weight:700;color:var(--muted);">kWh/day</span>
+                    <p class="helper-text">Your total electricity use in a day. Check your Saudi electricity bill: monthly kWh &divide; 30 = kWh/day. A small apartment may be around 15–30 kWh/day; a villa with heavy AC can be 40–90+ kWh/day.</p>
+                </div>
+
+                <div class="slider-group">
+                    <label for="autonomyDays" class="slider-label">Backup days</label>
+                    <input type="range" id="autonomyDays" min="1" max="7" step="1" value="2" aria-label="Days of backup autonomy">
+                    <output class="slider-value" id="autonomyDisplay">2</output>
+                    <span style="font-weight:700;color:var(--muted);">days</span>
+                    <p class="helper-text">How many backup days your battery should cover during grid outages, dust storms, maintenance, or low solar generation. 1–3 days is common in Saudi residential systems.</p>
+                </div>
+
+                <div class="slider-group">
+                    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:1rem 2rem;width:100%;">
+                        <label for="dodSlider" class="slider-label">Safe battery use limit (DoD)</label>
+                        <input type="range" id="dodSlider" min="0.20" max="0.90" step="0.05" value="0.80" aria-label="Depth of discharge limit">
+                        <output class="slider-value" id="dodDisplay">80%</output>
+                    </div>
+                    <div class="dod-row">
+                        <span style="font-size:0.82rem;color:var(--muted);">Battery type presets:</span>
+                        <button type="button" class="dod-preset" id="dodLifePO4" aria-pressed="true">LiFePO₄</button>
+                        <button type="button" class="dod-preset" id="dodAGM" aria-pressed="false">AGM</button>
+                        <button type="button" class="dod-preset" id="dodFlooded" aria-pressed="false">Flooded</button>
+                    </div>
+                    <p class="helper-text">How much of the battery you can safely drain. LiFePO₄ (lithium) can use up to 80%. Lead-acid batteries should stay at 50% or less for long life.</p>
+                </div>
+
+                <div class="slider-group">
+                    <label for="tempSlider" class="slider-label">Battery temperature</label>
+                    <input type="range" id="tempSlider" min="-10" max="50" step="1" value="25" aria-label="Battery temperature in Celsius">
+                    <output class="slider-value" id="tempDisplay">25°C</output>
+                    <span style="font-weight:700;color:var(--muted);font-size:0.85rem;">Available capacity: <span class="derating-display" id="deratingDisplay">100%</span></span>
+                    <p class="helper-text">Cold batteries deliver less charge. At 0°C, about 85% of capacity is available. Above 25°C the capacity is not reduced, but high heat (35°C+) can shorten battery life and may require temperature-controlled installation &mdash; avoid outdoor enclosures in direct sun.</p>
+                </div>
+
+                <fieldset class="select-group" style="margin-top:1rem;border:none;">
+                    <legend style="font-weight:800;color:var(--forest);padding:0;float:none;margin-bottom:0.5rem;">System voltage</legend>
+                    <div class="radio-group">
+                        <label><input type="radio" name="sysVolt" id="sys12v" value="12"> 12V <span style="font-weight:400;color:var(--muted);font-size:0.85rem;">— small DC load / majlis / vehicle</span></label>
+                        <label><input type="radio" name="sysVolt" id="sys24v" value="24"> 24V <span style="font-weight:400;color:var(--muted);font-size:0.85rem;">— small istiraha / medium backup</span></label>
+                        <label><input type="radio" name="sysVolt" id="sys48v" value="48" checked> 48V <span style="font-weight:400;color:var(--muted);font-size:0.85rem;">— villa / farm / hybrid inverter system</span></label>
+                    </div>
+                    <p class="helper-text" style="margin-top:0.5rem;">Your battery bank&rsquo;s DC voltage class. This is set by your inverter/charger — not household AC voltage.</p>
+                </fieldset>
+
+                <div class="select-group" style="margin-top:1rem;">
+                    <label for="batterySpec">Battery</label>
+                    <select id="batterySpec" aria-controls="customFields">
+                        <option value="12-100">12V 100Ah LiFePO₄</option>
+                        <option value="12-200">12V 200Ah LiFePO₄</option>
+                        <option value="12-100-agm">12V 100Ah AGM</option>
+                        <option value="12-200-agm">12V 200Ah AGM</option>
+                        <option value="2-500">2V 500Ah Flooded</option>
+                        <option value="2-1000">2V 1000Ah Flooded</option>
+                        <option value="custom">Custom battery</option>
+                    </select>
+
+                    <div id="customFields" class="custom-fields" style="display:none;" role="region" aria-label="Custom battery values">
+                        <label>Voltage: <input type="number" id="customBatteryV" value="12" min="1" step="0.1"> V</label>
+                        <label>Capacity: <input type="number" id="customBatteryAh" value="100" min="1" step="1"> Ah</label>
+                    </div>
+                    <p class="helper-text">Pick a battery you have or plan to buy. For custom batteries, common lithium values like 12.8V, 25.6V, and 51.2V are compatible with 12V, 24V, and 48V systems.</p>
+                </div>
+            </section>
+
+            <section aria-labelledby="results-heading">
+                <div class="section-heading">
+                    <h2 id="results-heading">Your battery bank.</h2>
+                    <p>How many batteries you need and how to wire them.</p>
+                </div>
+
+                <div id="resultSummary" class="result-summary" role="status" aria-live="polite">
+                    Enter your daily energy use and backup days above to see results.
+                </div>
+
+                <div id="validationMessage" class="helper-text" style="margin-bottom:1rem;font-weight:700;display:none;" role="alert"></div>
+
+                <div class="results-row">
+                    <div class="stat-card">
+                        <p class="stat-label">Energy needed</p>
+                        <p class="stat-number"><span id="resultEnergyNeeded">--</span></p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Required bank size</p>
+                        <p class="stat-number"><span id="resultRequiredCapacity">--</span></p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Installed capacity</p>
+                        <p class="stat-number"><span id="resultInstalledCapacity">--</span></p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Usable capacity</p>
+                        <p class="stat-number"><span id="resultUsableCapacity">--</span></p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Battery bank voltage</p>
+                        <p class="stat-number" style="font-size:clamp(1.4rem, 2.8vw, 2rem);"><span id="resultBankVoltage">--</span></p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">How to wire</p>
+                        <p class="stat-number" style="font-size:clamp(1.2rem, 2vw, 1.8rem);overflow-wrap:anywhere;"><span id="resultConfig">--</span></p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Total batteries</p>
+                        <p class="stat-number"><span id="resultCount">--</span></p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-label">Safety margin</p>
+                        <p class="stat-number" style="font-size:clamp(1rem, 1.6vw, 1.4rem);"><span id="resultMargin">--</span></p>
+                    </div>
+                </div>
+
+                <div class="safety-box">
+                    <strong>Storage sizing only — not installation design.</strong> This tool estimates battery bank size. It does not size inverters, solar panels, fuses, breakers, cables, or ventilation. Install batteries in an indoor, ventilated, temperature-controlled location away from direct sun. In Saudi summer conditions, high heat (>35&deg;C) can reduce battery life; avoid uncooled outdoor enclosures. Always check manufacturer limits for series/parallel configurations and BMS current ratings. Have your final design reviewed by a qualified installer.
+                </div>
+            </section>
+
+            <section aria-labelledby="how-heading">
+                <div class="section-heading">
+                    <h2 id="how-heading">How it works.</h2>
+                    <p>Three numbers that determine your battery bank size.</p>
+                </div>
+
+                <div class="how-cards">
+                    <article class="how-card">
+                        <span class="how-step" aria-hidden="true">1</span>
+                        <h3>Energy need &times; backup days</h3>
+                        <p>Multiply your daily energy use by the number of backup days. Then divide by your depth-of-discharge limit so you never drain batteries below their safe level.</p>
+                    </article>
+                    <article class="how-card">
+                        <span class="how-step" aria-hidden="true">2</span>
+                        <h3>Temperature adjustment</h3>
+                        <p>Cold batteries deliver less capacity &mdash; at -10&deg;C about 75% is available. Above 25&deg;C short-term capacity is full, but extreme heat can shorten battery life; keep batteries in a ventilated, temperature-controlled space away from direct sun.</p>
+                    </article>
+                    <article class="how-card">
+                        <span class="how-step" aria-hidden="true">3</span>
+                        <h3>Match voltage with series + parallel</h3>
+                        <p>Batteries in series increase voltage; in parallel increase amp-hours. The tool finds the right combination to match your system voltage and deliver the capacity you need.</p>
+                    </article>
+                </div>
+            </section>
+
+            <section aria-labelledby="details-title">
+                <div class="section-heading">
+                    <h2 id="details-title">Technical details.</h2>
+                    <p>Assumptions and methods behind the numbers.</p>
+                </div>
+
+                <div class="content-grid">
+                    <div>
+                        <article class="card">
+                            <h3>How to use these results</h3>
+                            <ul style="margin:0;padding-left:1.25rem;">
+                                <li><strong>Energy needed</strong> is your daily use times backup days. This is the minimum energy your bank must store.</li>
+                                <li><strong>Required bank size</strong> is the nominal capacity needed after accounting for DoD and temperature limits.</li>
+                                <li><strong>Installed capacity</strong> is the actual nominal size of the battery bank you would build with whole batteries.</li>
+                                <li><strong>Usable capacity</strong> is what you can actually draw from the installed bank after DoD and temperature derating.</li>
+                                <li><strong>How to wire</strong> shows the configuration: <em>4S3P</em> means 4 in series and 3 parallel strings &mdash; 8 batteries total.</li>
+                            </ul>
+                        </article>
+
+                        <article class="card">
+                            <h3>A note on real-world conditions</h3>
+                            <p>
+                                This tool provides a conservative estimate. In practice, factors like battery age, charge/discharge rates, and inverter efficiency will affect real-world performance. Always add a 10–20% safety margin and consult your battery manufacturer's specifications.
+                            </p>
+                        </article>
+                    </div>
+
+                    <aside class="side-stack" aria-label="Key formulas">
+                        <section class="side-card panel-card" style="border:none;box-shadow:none;backdrop-filter:none;background:transparent;padding:0;">
+                            <div class="panel-card" style="padding:1.25rem;">
+                                <p class="panel-label">Key formulas</p>
+                                <p style="font-size:0.9rem;line-height:1.7;">
+                                    <strong>Energy needed</strong> = daily load &times; backup days<br>
+                                    <strong>Required nominal</strong> = energy needed &divide; DoD &divide; temp factor<br>
+                                    <strong>Bank Ah</strong> = required nominal &times; 1000 &divide; system volts<br>
+                                    <strong>Series</strong> = system volts &divide; battery volts<br>
+                                    <strong>Parallel</strong> = ceil(bank Ah &divide; battery Ah)<br>
+                                    <strong>Safety margin</strong> = usable capacity &divide; energy needed
+                                </p>
+                            </div>
+                        </section>
+                    </aside>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <p>Published with GitHub Pages. Built as a compact record of renewable-energy engineering and coding practice.</p>
+        </footer>
+    </div>
+
+    <!-- BATTERY_SCRIPT -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function getDeratingFactor(tempC) {
+            if (tempC >= 25) return 1.00;
+            if (tempC >= 10) return 0.95;
+            if (tempC >= 0) return 0.85;
+            if (tempC >= -10) return 0.75;
+            return 0.65;
+        }
+
+        var chemistryDoD = {
+            lifepo4: 0.80,
+            agm: 0.50,
+            flooded: 0.50
+        };
+
+        function getBatterySpec(specValue) {
+            var map = {
+                '12-100': { v: 12, ah: 100, chemistry: 'lifepo4' },
+                '12-200': { v: 12, ah: 200, chemistry: 'lifepo4' },
+                '12-100-agm': { v: 12, ah: 100, chemistry: 'agm' },
+                '12-200-agm': { v: 12, ah: 200, chemistry: 'agm' },
+                '2-500': { v: 2, ah: 500, chemistry: 'flooded' },
+                '2-1000': { v: 2, ah: 1000, chemistry: 'flooded' }
+            };
+            if (specValue === 'custom') {
+                var v = parseFloat(document.getElementById('customBatteryV').value);
+                var ah = parseFloat(document.getElementById('customBatteryAh').value);
+                if (isNaN(v) || isNaN(ah) || v <= 0 || ah <= 0) return null;
+                return { v: v, ah: ah, chemistry: null };
+            }
+            return map[specValue] || null;
+        }
+
+        function getBatteryNominalClass(batteryV) {
+            var lithiumMap = { 12.8: 12, 25.6: 24, 51.2: 48 };
+            return lithiumMap[batteryV] || batteryV;
+        }
+
+        function validateVoltage(batteryV, sysVoltage) {
+            var nominalV = getBatteryNominalClass(batteryV);
+            var seriesCount = sysVoltage / nominalV;
+            var isInteger = Math.abs(seriesCount - Math.round(seriesCount)) < 0.001;
+            if (!isInteger || seriesCount < 1) {
+                return { valid: false, message: batteryV + 'V batteries are not compatible with a ' + sysVoltage + 'V system. Try a different battery voltage or system voltage.' };
+            }
+            var actualBankVoltage = seriesCount * batteryV;
+            var roundedS = Math.round(seriesCount);
+            return {
+                valid: true,
+                seriesCount: roundedS,
+                actualBankVoltage: Math.round(actualBankVoltage * 10) / 10,
+                bankVoltageLabel: (Math.abs(actualBankVoltage - sysVoltage) > 0.1)
+                    ? Math.round(actualBankVoltage * 10) / 10 + 'V'
+                    : sysVoltage + 'V'
+            };
+        }
+
+        function computeBankSize(dailyKwh, autonomy, dod, tempC, sysVoltage, batteryV, batteryAh) {
+            var requiredEnergyKwh = dailyKwh * autonomy;
+            var requiredNominalKwh = requiredEnergyKwh / dod;
+            var derating = getDeratingFactor(tempC);
+            var totalKwh = requiredNominalKwh / derating;
+            var totalAh = totalKwh * 1000 / sysVoltage;
+
+            var voltageCheck = validateVoltage(batteryV, sysVoltage);
+            if (!voltageCheck.valid) {
+                return { error: voltageCheck.message };
+            }
+
+            var seriesCount = voltageCheck.seriesCount;
+            var parallelStrings = Math.ceil(totalAh / batteryAh);
+            var totalBatteries = seriesCount * parallelStrings;
+            var installedAh = parallelStrings * batteryAh;
+            var installedKwh = installedAh * sysVoltage / 1000;
+            var usableKwh = installedKwh * dod * derating;
+            var exactMargin = usableKwh / requiredEnergyKwh;
+
+            return {
+                totalKwh: Math.round(totalKwh * 10) / 10,
+                totalAh: Math.round(totalAh),
+                seriesCount: seriesCount,
+                parallelStrings: parallelStrings,
+                totalBatteries: totalBatteries,
+                sysVoltage: sysVoltage,
+                batteryV: batteryV,
+                batteryAh: batteryAh,
+                requiredEnergyKwh: Math.round(requiredEnergyKwh * 10) / 10,
+                requiredNominalKwh: Math.round(requiredNominalKwh * 10) / 10,
+                installedAh: installedAh,
+                installedKwh: Math.round(installedKwh * 10) / 10,
+                usableKwh: Math.round(usableKwh * 10) / 10,
+                margin: Math.round(exactMargin * 10) / 10,
+                marginPercent: Math.round((exactMargin - 1) * 100),
+                bankVoltageLabel: voltageCheck.bankVoltageLabel,
+                actualBankVoltage: voltageCheck.actualBankVoltage,
+                derating: derating
+            };
+        }
+
+        function clearResults() {
+            document.getElementById('resultEnergyNeeded').textContent = '--';
+            document.getElementById('resultRequiredCapacity').textContent = '--';
+            document.getElementById('resultInstalledCapacity').textContent = '--';
+            document.getElementById('resultUsableCapacity').textContent = '--';
+            document.getElementById('resultBankVoltage').textContent = '--';
+            document.getElementById('resultConfig').textContent = '--';
+            document.getElementById('resultCount').textContent = '--';
+            document.getElementById('resultMargin').textContent = '--';
+            document.getElementById('resultSummary').textContent = 'Enter your daily energy use and backup days above to see results.';
+            document.getElementById('validationMessage').style.display = 'none';
+        }
+
+        function update() {
+            var rawDaily = parseFloat(document.getElementById('dailyLoad').value);
+            var dailyLoad = isNaN(rawDaily) ? 0 : rawDaily;
+            var rawAuto = parseFloat(document.getElementById('autonomyDays').value);
+            var autonomy = isNaN(rawAuto) ? 1 : rawAuto;
+            var rawDod = parseFloat(document.getElementById('dodSlider').value);
+            var dod = isNaN(rawDod) ? 0.5 : rawDod;
+            var rawTemp = parseFloat(document.getElementById('tempSlider').value);
+            var tempC = isNaN(rawTemp) ? 25 : rawTemp;
+
+            var sysRadio = document.querySelector('input[name="sysVolt"]:checked');
+            var sysVoltage = sysRadio ? parseInt(sysRadio.value, 10) : 12;
+
+            var specValue = document.getElementById('batterySpec').value;
+            var spec = getBatterySpec(specValue);
+
+            var validationMsg = document.getElementById('validationMessage');
+
+            if (!spec || dailyLoad <= 0 || autonomy <= 0) {
+                clearResults();
+                validationMsg.style.display = 'none';
+                return;
+            }
+
+            var result = computeBankSize(dailyLoad, autonomy, dod, tempC, sysVoltage, spec.v, spec.ah);
+
+            if (result.error) {
+                clearResults();
+                validationMsg.textContent = result.error;
+                validationMsg.style.display = 'block';
+                return;
+            }
+
+            validationMsg.style.display = 'none';
+
+            document.getElementById('resultEnergyNeeded').textContent = result.requiredEnergyKwh + ' kWh';
+            document.getElementById('resultRequiredCapacity').textContent = result.requiredNominalKwh + ' kWh';
+            document.getElementById('resultInstalledCapacity').textContent = result.installedKwh + ' kWh (' + result.installedAh + ' Ah)';
+            document.getElementById('resultUsableCapacity').textContent = result.usableKwh + ' kWh';
+            document.getElementById('resultBankVoltage').textContent = result.bankVoltageLabel;
+            document.getElementById('resultConfig').textContent = result.seriesCount + 'S' + result.parallelStrings + 'P (' + result.totalBatteries + ' \u00D7 ' + result.batteryV + 'V ' + result.batteryAh + 'Ah)';
+            document.getElementById('resultCount').textContent = result.totalBatteries;
+            document.getElementById('resultMargin').textContent = result.margin + '\u00D7 (' + result.marginPercent + '% above need)';
+
+            var summaryEl = document.getElementById('resultSummary');
+            var summary = 'You need ' + result.totalBatteries + ' batteries. ';
+            if (result.seriesCount > 1) {
+                summary += 'Wire ' + result.seriesCount + ' in series per string, then make ' + result.parallelStrings + ' identical strings side-by-side. ';
+            } else {
+                summary += 'Wire ' + result.parallelStrings + ' identical strings in parallel. ';
+            }
+            summary += 'That gives you about ' + result.usableKwh + ' kWh of usable energy at roughly ' + result.bankVoltageLabel + '. ';
+            summary += 'Your "energy needed" backup goal is ' + result.requiredEnergyKwh + ' kWh (\u00D7' + result.margin + ' safety margin).';
+            summaryEl.textContent = summary;
+        }
+
+        var dailyLoadSlider = document.getElementById('dailyLoad');
+        var dailyLoadDisplay = document.getElementById('dailyLoadDisplay');
+        dailyLoadSlider.addEventListener('input', function() {
+            dailyLoadDisplay.value = this.value;
+            update();
+        });
+
+        var autonomySlider = document.getElementById('autonomyDays');
+        var autonomyDisplay = document.getElementById('autonomyDisplay');
+        autonomySlider.addEventListener('input', function() {
+            autonomyDisplay.value = this.value;
+            update();
+        });
+
+        var dodSlider = document.getElementById('dodSlider');
+        var dodDisplay = document.getElementById('dodDisplay');
+        dodSlider.addEventListener('input', function() {
+            dodDisplay.value = Math.round(this.value * 100) + '%';
+            dodPresets.forEach(function(p) {
+                var el = document.getElementById(p.id);
+                el.classList.remove('active');
+                el.setAttribute('aria-pressed', 'false');
+            });
+            update();
+        });
+
+        var tempSlider = document.getElementById('tempSlider');
+        var tempDisplay = document.getElementById('tempDisplay');
+        var deratingDisplay = document.getElementById('deratingDisplay');
+        tempSlider.addEventListener('input', function() {
+            var val = parseFloat(this.value);
+            tempDisplay.value = val + '\u00B0C';
+            var factor = getDeratingFactor(val);
+            deratingDisplay.textContent = Math.round(factor * 100) + '%';
+            update();
+        });
+
+        var dodPresets = [
+            { id: 'dodLifePO4', value: 0.80 },
+            { id: 'dodAGM', value: 0.50 },
+            { id: 'dodFlooded', value: 0.50 }
+        ];
+
+        dodPresets.forEach(function(preset) {
+            document.getElementById(preset.id).addEventListener('click', function() {
+                dodSlider.value = preset.value;
+                dodSlider.dispatchEvent(new Event('input', { bubbles: true }));
+                dodPresets.forEach(function(p) {
+                    var el = document.getElementById(p.id);
+                    el.classList.remove('active');
+                    el.setAttribute('aria-pressed', 'false');
+                });
+                this.classList.add('active');
+                this.setAttribute('aria-pressed', 'true');
+            });
+        });
+
+        var batterySpec = document.getElementById('batterySpec');
+        var customFields = document.getElementById('customFields');
+        batterySpec.addEventListener('change', function() {
+            var isCustom = this.value === 'custom';
+            customFields.style.display = isCustom ? '' : 'none';
+
+            var spec = getBatterySpec(this.value);
+            if (spec && spec.chemistry && chemistryDoD[spec.chemistry]) {
+                var newDod = chemistryDoD[spec.chemistry];
+                dodSlider.value = newDod;
+                dodSlider.dispatchEvent(new Event('input', { bubbles: true }));
+                dodPresets.forEach(function(p) {
+                    var el = document.getElementById(p.id);
+                    el.classList.remove('active');
+                    el.setAttribute('aria-pressed', 'false');
+                    if (Math.abs(p.value - newDod) < 0.001) {
+                        el.classList.add('active');
+                        el.setAttribute('aria-pressed', 'true');
+                    }
+                });
+            }
+
+            update();
+        });
+
+        document.getElementById('customBatteryV').addEventListener('input', update);
+        document.getElementById('customBatteryAh').addEventListener('input', update);
+
+        var voltRadios = document.querySelectorAll('input[name="sysVolt"]');
+        for (var i = 0; i < voltRadios.length; i++) {
+            voltRadios[i].addEventListener('change', update);
+        }
+
+        dailyLoadDisplay.value = dailyLoadSlider.value;
+        autonomyDisplay.value = autonomySlider.value;
+        dodDisplay.value = Math.round(parseFloat(dodSlider.value) * 100) + '%';
+        var initTemp = parseFloat(tempSlider.value);
+        tempDisplay.value = initTemp + '\u00B0C';
+        var initFactor = getDeratingFactor(initTemp);
+        deratingDisplay.textContent = Math.round(initFactor * 100) + '%';
+
+        customFields.style.display = batterySpec.value === 'custom' ? '' : 'none';
+
+        var initDod = parseFloat(dodSlider.value);
+        dodPresets.forEach(function(p) {
+            if (Math.abs(p.value - initDod) < 0.001) {
+                document.getElementById(p.id).classList.add('active');
+                document.getElementById(p.id).setAttribute('aria-pressed', 'true');
+            }
+        });
+
+        update();
+    });
+    </script>
+    <!-- END_BATTERY_SCRIPT -->
+</body>
+</html>
