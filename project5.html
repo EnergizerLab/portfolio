@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="See where PV energy disappears — temperature, shading, soiling, wiring, inverter efficiency, and uptime turned into a clear loss tree.">
+    <meta name="theme-color" content="#0f2f25">
+    <meta property="og:title" content="PV Loss Tree | Portfolio Project">
+    <meta property="og:description" content="See where PV energy disappears and how real-world losses shape AC output.">
+    <meta property="og:type" content="website">
+    <title>PV Loss Tree | Renewable Energy Project</title>
+    <style>
+        :root {
+            --ink: #102019;
+            --muted: #5b6b61;
+            --paper: #fbf7ed;
+            --surface: #fffdf7;
+            --line: #ded2b8;
+            --forest: #0f2f25;
+            --moss: #315f48;
+            --sun: #d9922e;
+            --sun-dark: #995d12;
+            --shadow: rgba(31, 54, 42, 0.18);
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: Aptos, "Segoe UI", Tahoma, sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 18% 14%, rgba(217, 146, 46, 0.22), transparent 28rem),
+                radial-gradient(circle at 88% 8%, rgba(49, 95, 72, 0.16), transparent 24rem),
+                linear-gradient(180deg, #fffaf0 0%, var(--paper) 58%, #efe4cc 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+            -webkit-tap-highlight-color: rgba(217, 146, 46, 0.24);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(15, 47, 37, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 47, 37, 0.035) 1px, transparent 1px);
+            background-size: 3rem 3rem;
+            mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.72), transparent 70%);
+        }
+
+        a { color: inherit; }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 3px solid var(--sun-dark);
+            outline-offset: 4px;
+        }
+
+        .skip-link {
+            position: absolute;
+            left: 1rem;
+            top: 1rem;
+            z-index: 10;
+            padding: 0.75rem 1rem;
+            color: white;
+            background: var(--forest);
+            border-radius: 999px;
+            transform: translateY(-150%);
+            transition: transform 180ms ease;
+        }
+
+        .skip-link:focus { transform: translateY(0); }
+
+        .page {
+            width: min(1120px, calc(100% - 2rem));
+            margin: 0 auto;
+            padding: 2rem 0 3rem;
+        }
+
+        .site-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 4rem;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--forest);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            text-decoration: none;
+        }
+
+        .brand-mark {
+            display: grid;
+            width: 2.5rem;
+            height: 2.5rem;
+            place-items: center;
+            color: var(--paper);
+            background: var(--forest);
+            border-radius: 0.85rem;
+            box-shadow: 0 0.8rem 2rem var(--shadow);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .nav a {
+            padding: 0.65rem 0.9rem;
+            color: var(--moss);
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-decoration: none;
+            border-radius: 999px;
+            transition: color 180ms ease, background-color 180ms ease;
+        }
+
+        .nav a:hover,
+        .nav a[aria-current="page"] {
+            color: var(--forest);
+            background: rgba(49, 95, 72, 0.1);
+        }
+
+        h1, h2, h3, p { margin-top: 0; }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.42fr);
+            gap: clamp(2rem, 5vw, 4.5rem);
+            align-items: end;
+            margin-bottom: 4rem;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            margin: 0 0 1rem;
+            color: var(--sun-dark);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 2rem;
+            height: 2px;
+            background: var(--sun);
+        }
+
+        h1 {
+            max-width: 13ch;
+            margin-bottom: 1.25rem;
+            color: var(--forest);
+            font-size: clamp(3.25rem, 8vw, 6.8rem);
+            line-height: 0.9;
+            letter-spacing: -0.08em;
+            text-wrap: balance;
+        }
+
+        .lead {
+            max-width: 42rem;
+            margin-bottom: 2rem;
+            color: var(--muted);
+            font-size: clamp(1.08rem, 2vw, 1.35rem);
+            text-wrap: pretty;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.85rem;
+            align-items: center;
+        }
+
+        .button, .text-link {
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 3rem;
+            padding: 0.85rem 1.25rem;
+            color: #fffaf0;
+            background: var(--forest);
+            border: 1px solid var(--forest);
+            border-radius: 999px;
+            box-shadow: 0 1rem 2rem var(--shadow);
+            transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background: var(--moss);
+            box-shadow: 0 1.25rem 2.4rem rgba(31, 54, 42, 0.24);
+            transform: translateY(-2px);
+        }
+
+        .button:active { transform: translateY(0); }
+
+        .text-link {
+            color: var(--forest);
+            transition: color 180ms ease;
+        }
+
+        .text-link:hover { color: var(--sun-dark); }
+
+        .summary-panel {
+            position: relative;
+            padding: 1.25rem;
+            background: rgba(255, 253, 247, 0.72);
+            border: 1px solid rgba(222, 210, 184, 0.9);
+            border-radius: 2rem;
+            box-shadow: 0 1.5rem 4rem var(--shadow);
+            backdrop-filter: blur(14px);
+        }
+
+        .summary-panel::before {
+            content: "";
+            position: absolute;
+            inset: -0.75rem 1.5rem auto auto;
+            width: 7rem;
+            height: 7rem;
+            background: radial-gradient(circle, rgba(217, 146, 46, 0.42), transparent 68%);
+            border-radius: 50%;
+        }
+
+        .summary-card {
+            position: relative;
+            padding: 1.25rem;
+            color: #f7f0dd;
+            background: var(--forest);
+            border-radius: 1.35rem;
+        }
+
+        .summary-label {
+            margin-bottom: 0.75rem;
+            color: #e6c582;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .summary-value {
+            margin-bottom: 0.75rem;
+            font-size: clamp(2.6rem, 6vw, 4rem);
+            font-weight: 900;
+            line-height: 0.95;
+            letter-spacing: -0.06em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .summary-card p:last-child {
+            margin-bottom: 0;
+            color: #d7dfd5;
+        }
+
+        .section-heading {
+            display: grid;
+            grid-template-columns: minmax(0, 0.72fr) minmax(16rem, 0.28fr);
+            gap: 1.5rem;
+            align-items: end;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            color: var(--forest);
+            font-size: clamp(2rem, 4vw, 3.8rem);
+            line-height: 0.98;
+            letter-spacing: -0.06em;
+            text-wrap: balance;
+        }
+
+        .section-heading p { color: var(--muted); }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 0.72fr) minmax(16rem, 0.28fr);
+            gap: 1rem;
+            align-items: start;
+            margin-bottom: 3rem;
+        }
+
+        .card, .side-card {
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.5rem;
+            box-shadow: 0 1rem 3rem rgba(31, 54, 42, 0.1);
+        }
+
+        .card { padding: clamp(1.25rem, 3vw, 2rem); }
+
+        .card + .card { margin-top: 1rem; }
+
+        .card h3, .side-card h3 {
+            margin-bottom: 0.85rem;
+            color: var(--forest);
+            font-size: clamp(1.35rem, 2.4vw, 2rem);
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+        }
+
+        .card p, .card li, .side-card p, .side-card li { color: var(--muted); }
+
+        .side-stack { display: grid; gap: 1rem; }
+
+        .side-card { padding: 1.25rem; }
+
+        .site-footer {
+            margin-top: 4rem;
+            padding-top: 1.5rem;
+            color: var(--muted);
+            border-top: 1px solid var(--line);
+            font-size: 0.95rem;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 1rem;
+        }
+
+        .control-group {
+            padding: 1rem;
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.25rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(31, 54, 42, 0.08);
+        }
+
+        .control-group.wide { grid-column: 1 / -1; }
+
+        .control-group h3 {
+            margin-bottom: 0.8rem;
+            font-size: 1.05rem;
+            color: var(--forest);
+        }
+
+        .slider-group,
+        .select-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem 1rem;
+        }
+
+        .slider-group + .slider-group,
+        .select-group + .select-group { margin-top: 1rem; }
+
+        .slider-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            color: var(--forest);
+            cursor: pointer;
+        }
+
+        .slider-value {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--sun-dark);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.04em;
+            min-width: 3.5ch;
+            line-height: 1;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            flex: 1;
+            min-width: 10rem;
+            height: 0.5rem;
+            background: var(--line);
+            border-radius: 999px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--sun-dark);
+            border-radius: 50%;
+            border: 3px solid var(--surface);
+            box-shadow: 0 0.25rem 0.75rem rgba(153, 93, 18, 0.35);
+            cursor: pointer;
+            transition: transform 120ms ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 1.5rem;
+            height: 1.5rem;
+            background: var(--sun-dark);
+            border-radius: 50%;
+            border: 3px solid var(--surface);
+            box-shadow: 0 0.25rem 0.75rem rgba(153, 93, 18, 0.35);
+            cursor: pointer;
+        }
+
+        select {
+            font-family: inherit;
+            font-size: 0.95rem;
+            padding: 0.5rem 0.75rem;
+            color: var(--ink);
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 0.75rem;
+        }
+
+        .helper-text {
+            margin-top: 0.35rem;
+            color: var(--muted);
+            font-size: 0.82rem;
+            width: 100%;
+        }
+
+        .result-summary {
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
+            background: rgba(49, 95, 72, 0.1);
+            border-radius: 1rem;
+            color: var(--forest);
+            font-size: 1.02rem;
+            font-weight: 600;
+            line-height: 1.55;
+        }
+
+        .results-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            padding: 1.15rem 1rem;
+            text-align: center;
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.35rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(31, 54, 42, 0.08);
+        }
+
+        .stat-label {
+            margin-bottom: 0.4rem;
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .stat-number {
+            color: var(--forest);
+            font-size: clamp(2rem, 4vw, 2.8rem);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            font-variant-numeric: tabular-nums;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-unit {
+            font-size: 0.65em;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .tree {
+            display: grid;
+            gap: 0.85rem;
+        }
+
+        .tree-row {
+            position: relative;
+            padding: 1rem 1rem 1.15rem;
+            background: rgba(255, 253, 247, 0.82);
+            border: 1px solid var(--line);
+            border-radius: 1.25rem;
+            box-shadow: 0 0.5rem 1.5rem rgba(31, 54, 42, 0.08);
+        }
+
+        .tree-row.root {
+            background: rgba(49, 95, 72, 0.1);
+            border-color: rgba(49, 95, 72, 0.18);
+        }
+
+        .tree-head {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tree-label {
+            margin-bottom: 0.2rem;
+            color: var(--forest);
+            font-weight: 800;
+        }
+
+        .tree-note {
+            color: var(--muted);
+            font-size: 0.88rem;
+            margin-bottom: 0;
+        }
+
+        .tree-figures {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .tree-figures strong {
+            display: block;
+            color: var(--forest);
+            font-size: 1.1rem;
+            line-height: 1.1;
+        }
+
+        .tree-figures span {
+            color: var(--sun-dark);
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .tree-track {
+            height: 0.65rem;
+            overflow: hidden;
+            background: rgba(222, 210, 184, 0.4);
+            border-radius: 999px;
+        }
+
+        .tree-track span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--sun), var(--moss));
+        }
+
+        .tree-row.root .tree-track span {
+            background: linear-gradient(90deg, var(--forest), var(--moss));
+        }
+
+        .tree-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-bottom: 0.6rem;
+            padding: 0.28rem 0.55rem;
+            color: var(--sun-dark);
+            background: rgba(217, 146, 46, 0.12);
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .notes-list {
+            display: grid;
+            gap: 0.75rem;
+            padding-left: 1.1rem;
+        }
+
+        .notes-list li { padding-left: 0.3rem; }
+
+        .result-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .result-actions .button {
+            font-size: 0.85rem;
+            padding: 0.5rem 1rem;
+            min-height: auto;
+        }
+
+        .scope-box {
+            padding: 1rem 1.1rem;
+            background: rgba(217, 146, 46, 0.1);
+            border: 1px solid rgba(217, 146, 46, 0.3);
+            border-radius: 1rem;
+            color: var(--ink);
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+
+        .scope-box strong { color: var(--sun-dark); }
+
+        .visually-hidden:not(:focus):not(:active) {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        @media (max-width: 760px) {
+            .page {
+                width: min(100% - 1.25rem, 1120px);
+                padding-top: 1rem;
+            }
+
+            .site-header,
+            .hero,
+            .section-heading,
+            .content-grid,
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .site-header {
+                align-items: flex-start;
+                flex-direction: column;
+                margin-bottom: 3rem;
+            }
+
+            .nav {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .nav a { padding-inline: 0.55rem; }
+
+            h1 { max-width: 9ch; }
+
+            .hero { margin-bottom: 3.5rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <div class="page">
+        <header class="site-header">
+            <a class="brand" href="index.html">
+                <span class="brand-mark">5</span>
+                <span>Energy Lab</span>
+            </a>
+            <nav class="nav" aria-label="Primary navigation">
+                <a href="index.html#projects">Projects</a>
+                <a href="project2.html">Tilt Optimiser</a>
+                <a href="project3.html">Battery Sizer</a>
+                <a href="project4.html">PV Designer</a>
+                <a href="project5.html" aria-current="page">Loss Tree</a>
+            </nav>
+        </header>
+
+        <main id="main">
+            <section class="hero" aria-labelledby="hero-title">
+                <div>
+                    <p class="eyebrow">Renewable energy engineering</p>
+                    <h1 id="hero-title">See where PV energy disappears.</h1>
+                    <p class="lead">
+                        A compact PV performance tool that turns temperature, shading, soiling, wiring, inverter efficiency, and uptime into a clear loss tree.
+                    </p>
+                    <div class="actions">
+                        <a class="button" href="#model">Open the model</a>
+                        <a class="text-link" href="index.html">Back to portfolio</a>
+                    </div>
+                </div>
+
+                <aside class="summary-panel" aria-label="PV performance snapshot">
+                    <div class="summary-card">
+                        <p class="summary-label">Final AC output</p>
+                        <p class="summary-value" id="heroOutput">0.00 kWh</p>
+                        <p id="heroNote">Set the inputs to see the retained energy after real-world losses.</p>
+                    </div>
+                </aside>
+            </section>
+
+            <section class="section-heading" aria-labelledby="model-title">
+                <div>
+                    <h2 id="model-title">A graduate-level project that explains performance, not just sizing.</h2>
+                    <p>
+                        The model starts with the STC nameplate output and walks through the losses that matter in the field, turning a basic solar estimate into a more realistic performance view.
+                    </p>
+                </div>
+                <p>
+                    Use the controls to test how a hot site, dusty array, and modest electrical losses change the usable AC energy.
+                </p>
+            </section>
+
+            <section class="content-grid" id="model">
+                <div>
+                    <div class="card">
+                        <h3>Input assumptions</h3>
+                        <div class="control-grid">
+                            <div class="control-group">
+                                <h3>System sizing</h3>
+                                <div class="slider-group">
+                                    <label class="slider-label" for="systemSize">PV size <span class="slider-value" id="systemSizeValue"></span></label>
+                                    <input id="systemSize" type="range" min="1" max="20" step="0.1" value="6.4">
+                                    <span class="helper-text">Nameplate DC size for the array.</span>
+                                </div>
+                                <div class="slider-group">
+                                    <label class="slider-label" for="sunHours">Peak sun hours <span class="slider-value" id="sunHoursValue"></span></label>
+                                    <input id="sunHours" type="range" min="2.5" max="7.5" step="0.1" value="5.8">
+                                    <span class="helper-text">Daily irradiance equivalent used to estimate output.</span>
+                                </div>
+                                <div class="select-group">
+                                    <label for="moduleType">Module type</label>
+                                    <select id="moduleType">
+                                        <option value="mono">Monocrystalline</option>
+                                        <option value="poly">Polycrystalline</option>
+                                        <option value="thin">Thin-film</option>
+                                    </select>
+                                    <span class="helper-text">The module coefficient changes how hard heat hits output.</span>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <h3>Field conditions</h3>
+                                <div class="slider-group">
+                                    <label class="slider-label" for="tempC">Cell temperature <span class="slider-value" id="tempCValue"></span></label>
+                                    <input id="tempC" type="range" min="20" max="75" step="1" value="52">
+                                    <span class="helper-text">Higher cell temperature reduces voltage and usable power.</span>
+                                </div>
+                                <div class="slider-group">
+                                    <label class="slider-label" for="shading">Shading <span class="slider-value" id="shadingValue"></span></label>
+                                    <input id="shading" type="range" min="0" max="30" step="0.5" value="8.5">
+                                    <span class="helper-text">Partial shading, nearby obstacles, and row losses.</span>
+                                </div>
+                                <div class="slider-group">
+                                    <label class="slider-label" for="soiling">Soiling <span class="slider-value" id="soilingValue"></span></label>
+                                    <input id="soiling" type="range" min="0" max="20" step="0.5" value="6">
+                                    <span class="helper-text">Dust, grime, and site cleaning interval assumptions.</span>
+                                </div>
+                            </div>
+
+                            <div class="control-group">
+                                <h3>Electrical losses</h3>
+                                <div class="slider-group">
+                                    <label class="slider-label" for="bosLoss">Wiring and mismatch <span class="slider-value" id="bosLossValue"></span></label>
+                                    <input id="bosLoss" type="range" min="1" max="10" step="0.1" value="4.2">
+                                    <span class="helper-text">Cable drop, connectors, mismatch, and small balance-of-system losses.</span>
+                                </div>
+                                <div class="slider-group">
+                                    <label class="slider-label" for="inverterEff">Inverter efficiency <span class="slider-value" id="inverterEffValue"></span></label>
+                                    <input id="inverterEff" type="range" min="85" max="99.5" step="0.1" value="97.4">
+                                    <span class="helper-text">Conversion efficiency from DC to AC at the inverter stage.</span>
+                                </div>
+                                <div class="slider-group">
+                                    <label class="slider-label" for="availability">Availability <span class="slider-value" id="availabilityValue"></span></label>
+                                    <input id="availability" type="range" min="94" max="100" step="0.1" value="98.7">
+                                    <span class="helper-text">Maintenance, downtime, and day-to-day operating margin.</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Loss tree</h3>
+                        <p class="result-summary" id="summary" aria-live="polite"></p>
+                        <div class="results-row" aria-label="Key performance metrics">
+                            <div class="stat-card">
+                                <p class="stat-label">Retained energy</p>
+                                <p class="stat-number" id="retainedPct">0<span class="stat-unit">%</span></p>
+                            </div>
+                            <div class="stat-card">
+                                <p class="stat-label">Total loss</p>
+                                <p class="stat-number" id="lossPct">0<span class="stat-unit">%</span></p>
+                            </div>
+                            <div class="stat-card">
+                                <p class="stat-label">Base energy</p>
+                                <p class="stat-number" id="baseEnergy">0.00<span class="stat-unit"> kWh</span></p>
+                            </div>
+                            <div class="stat-card">
+                                <p class="stat-label">AC output</p>
+                                <p class="stat-number" id="finalEnergy">0.00<span class="stat-unit"> kWh</span></p>
+                            </div>
+                        </div>
+                        <div class="tree" id="tree"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="result-actions">
+                            <button class="button" id="copyBtn" type="button">Copy summary</button>
+                            <a class="button" href="index.html#projects">Back to projects</a>
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="side-stack" aria-label="Project notes">
+                    <article class="side-card">
+                        <h3>Model notes</h3>
+                        <p>The page keeps the assumptions visible so the output is easy to trace from input to final AC energy.</p>
+                    </article>
+                    <article class="side-card">
+                        <h3>Loss breakdown</h3>
+                        <p>Temperature, shading, soiling, wiring, inverter efficiency, and availability are shown as separate stages.</p>
+                    </article>
+                    <article class="side-card">
+                        <h3>Output</h3>
+                        <p>The result is a compact daily energy estimate that feels closer to a field tool than a classroom calculator.</p>
+                    </article>
+                </aside>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <p>Built as a compact record of renewable-energy engineering work and practical front-end execution.</p>
+        </footer>
+    </div>
+
+    <script>
+        const state = {
+            systemSize: 6.4,
+            sunHours: 5.8,
+            moduleType: 'mono',
+            tempC: 52,
+            shading: 8.5,
+            soiling: 6,
+            bosLoss: 4.2,
+            inverterEff: 97.4,
+            availability: 98.7,
+        };
+
+        const moduleCoefficients = {
+            mono: { label: 'Monocrystalline', coeff: 0.0039 },
+            poly: { label: 'Polycrystalline', coeff: 0.0043 },
+            thin: { label: 'Thin-film', coeff: 0.0026 },
+        };
+
+        const elements = {
+            systemSize: document.getElementById('systemSize'),
+            sunHours: document.getElementById('sunHours'),
+            moduleType: document.getElementById('moduleType'),
+            tempC: document.getElementById('tempC'),
+            shading: document.getElementById('shading'),
+            soiling: document.getElementById('soiling'),
+            bosLoss: document.getElementById('bosLoss'),
+            inverterEff: document.getElementById('inverterEff'),
+            availability: document.getElementById('availability'),
+            systemSizeValue: document.getElementById('systemSizeValue'),
+            sunHoursValue: document.getElementById('sunHoursValue'),
+            tempCValue: document.getElementById('tempCValue'),
+            shadingValue: document.getElementById('shadingValue'),
+            soilingValue: document.getElementById('soilingValue'),
+            bosLossValue: document.getElementById('bosLossValue'),
+            inverterEffValue: document.getElementById('inverterEffValue'),
+            availabilityValue: document.getElementById('availabilityValue'),
+            summary: document.getElementById('summary'),
+            tree: document.getElementById('tree'),
+            retainedPct: document.getElementById('retainedPct'),
+            lossPct: document.getElementById('lossPct'),
+            baseEnergy: document.getElementById('baseEnergy'),
+            finalEnergy: document.getElementById('finalEnergy'),
+            heroOutput: document.getElementById('heroOutput'),
+            heroNote: document.getElementById('heroNote'),
+            copyBtn: document.getElementById('copyBtn'),
+        };
+
+        function fmt(value, digits = 1) {
+            return Number(value).toFixed(digits);
+        }
+
+        function percent(value, digits = 1) {
+            return `${fmt(value, digits)}%`;
+        }
+
+        function clamp(value, min, max) {
+            return Math.min(Math.max(value, min), max);
+        }
+
+        function updateReadouts() {
+            elements.systemSizeValue.textContent = `${fmt(state.systemSize, 1)} kWp`;
+            elements.sunHoursValue.textContent = `${fmt(state.sunHours, 1)} h`;
+            elements.tempCValue.textContent = `${fmt(state.tempC, 0)} °C`;
+            elements.shadingValue.textContent = percent(state.shading, 1);
+            elements.soilingValue.textContent = percent(state.soiling, 1);
+            elements.bosLossValue.textContent = percent(state.bosLoss, 1);
+            elements.inverterEffValue.textContent = percent(state.inverterEff, 1);
+            elements.availabilityValue.textContent = percent(state.availability, 1);
+        }
+
+        function compute() {
+            const module = moduleCoefficients[state.moduleType];
+            const baseEnergy = state.systemSize * state.sunHours;
+            const temperatureLoss = Math.max(0, (state.tempC - 25) * module.coeff);
+            const temperatureFactor = clamp(1 - temperatureLoss, 0.78, 1);
+            const shadingFactor = clamp(1 - (state.shading / 100), 0.65, 1);
+            const soilingFactor = clamp(1 - (state.soiling / 100), 0.75, 1);
+            const bosFactor = clamp(1 - (state.bosLoss / 100), 0.85, 1);
+            const inverterFactor = clamp(state.inverterEff / 100, 0.88, 1);
+            const availabilityFactor = clamp(state.availability / 100, 0.85, 1);
+
+            const stages = [
+                {
+                    label: 'STC nameplate energy',
+                    note: `Base daily output before field losses at ${fmt(state.systemSize, 1)} kWp and ${fmt(state.sunHours, 1)} peak sun hours.`,
+                    factor: 1,
+                    remaining: baseEnergy,
+                    lossPct: 0,
+                },
+                {
+                    label: 'Temperature derating',
+                    note: `${module.label} module coefficient ${fmt(module.coeff * 100, 2)}%/°C above 25°C.`,
+                    factor: temperatureFactor,
+                    remaining: baseEnergy * temperatureFactor,
+                    lossPct: temperatureLoss * 100,
+                },
+                {
+                    label: 'Shading loss',
+                    note: 'Nearby obstacles, row mismatch, and partial shading at the array level.',
+                    factor: shadingFactor,
+                    remaining: baseEnergy * temperatureFactor * shadingFactor,
+                    lossPct: state.shading,
+                },
+                {
+                    label: 'Soiling loss',
+                    note: 'Dust, grime, and cleaning interval assumptions for the site.',
+                    factor: soilingFactor,
+                    remaining: baseEnergy * temperatureFactor * shadingFactor * soilingFactor,
+                    lossPct: state.soiling,
+                },
+                {
+                    label: 'Wiring and mismatch',
+                    note: 'Cable drop, connectors, and module mismatch under realistic operating conditions.',
+                    factor: bosFactor,
+                    remaining: baseEnergy * temperatureFactor * shadingFactor * soilingFactor * bosFactor,
+                    lossPct: state.bosLoss,
+                },
+                {
+                    label: 'Inverter conversion',
+                    note: 'DC to AC conversion efficiency at the inverter stage.',
+                    factor: inverterFactor,
+                    remaining: baseEnergy * temperatureFactor * shadingFactor * soilingFactor * bosFactor * inverterFactor,
+                    lossPct: 100 - state.inverterEff,
+                },
+                {
+                    label: 'Availability',
+                    note: 'Downtime and maintenance margin for the operating site.',
+                    factor: availabilityFactor,
+                    remaining: baseEnergy * temperatureFactor * shadingFactor * soilingFactor * bosFactor * inverterFactor * availabilityFactor,
+                    lossPct: 100 - state.availability,
+                },
+            ];
+
+            return { baseEnergy, stages };
+        }
+
+        function render() {
+            updateReadouts();
+
+            const { baseEnergy, stages } = compute();
+            const finalStage = stages[stages.length - 1];
+            const finalEnergy = finalStage.remaining;
+            const retainedPct = baseEnergy === 0 ? 0 : (finalEnergy / baseEnergy) * 100;
+            const totalLossPct = 100 - retainedPct;
+
+            elements.baseEnergy.textContent = `${fmt(baseEnergy, 2)} kWh`;
+            elements.finalEnergy.textContent = `${fmt(finalEnergy, 2)} kWh`;
+            elements.retainedPct.innerHTML = `${fmt(retainedPct, 0)}<span class="stat-unit">%</span>`;
+            elements.lossPct.innerHTML = `${fmt(totalLossPct, 0)}<span class="stat-unit">%</span>`;
+            elements.heroOutput.textContent = `${fmt(finalEnergy, 2)} kWh`;
+            elements.heroNote.textContent = `${fmt(retainedPct, 1)}% of the base DC energy survives to the AC output in this scenario.`;
+
+            elements.summary.textContent = `Base output of ${fmt(baseEnergy, 2)} kWh/day falls to ${fmt(finalEnergy, 2)} kWh/day after temperature, shading, soiling, wiring, inverter, and availability losses.`;
+
+            const summaryText = `PV loss tree: ${fmt(baseEnergy, 2)} kWh/day base output becomes ${fmt(finalEnergy, 2)} kWh/day AC output with ${fmt(totalLossPct, 1)}% total loss.`;
+
+            elements.tree.innerHTML = stages.map((stage, index) => {
+                const width = baseEnergy === 0 ? 0 : (stage.remaining / baseEnergy) * 100;
+                const lossText = index === 0 ? 'Baseline' : `${fmt(stage.lossPct, stage.lossPct < 10 ? 1 : 0)}% loss`;
+                return `
+                    <article class="tree-row ${index === 0 ? 'root' : ''}">
+                        <div class="tree-chip">Stage ${index + 1}</div>
+                        <div class="tree-head">
+                            <div>
+                                <p class="tree-label">${stage.label}</p>
+                                <p class="tree-note">${stage.note}</p>
+                            </div>
+                            <div class="tree-figures">
+                                <strong>${fmt(stage.remaining, 2)} kWh/day</strong>
+                                <span>${lossText}</span>
+                            </div>
+                        </div>
+                        <div class="tree-track" aria-hidden="true">
+                            <span style="width: ${clamp(width, 0, 100)}%"></span>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            elements.copyBtn.dataset.summary = summaryText;
+        }
+
+        function syncFromInputs() {
+            state.systemSize = parseFloat(elements.systemSize.value);
+            state.sunHours = parseFloat(elements.sunHours.value);
+            state.moduleType = elements.moduleType.value;
+            state.tempC = parseFloat(elements.tempC.value);
+            state.shading = parseFloat(elements.shading.value);
+            state.soiling = parseFloat(elements.soiling.value);
+            state.bosLoss = parseFloat(elements.bosLoss.value);
+            state.inverterEff = parseFloat(elements.inverterEff.value);
+            state.availability = parseFloat(elements.availability.value);
+            render();
+        }
+
+        function copySummary() {
+            const text = elements.copyBtn.dataset.summary || '';
+            if (!text) {
+                return;
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    const previous = elements.copyBtn.textContent;
+                    elements.copyBtn.textContent = 'Copied';
+                    window.setTimeout(() => {
+                        elements.copyBtn.textContent = previous;
+                    }, 1200);
+                }).catch(() => {});
+            }
+        }
+
+        [
+            elements.systemSize,
+            elements.sunHours,
+            elements.moduleType,
+            elements.tempC,
+            elements.shading,
+            elements.soiling,
+            elements.bosLoss,
+            elements.inverterEff,
+            elements.availability,
+        ].forEach((input) => input.addEventListener('input', syncFromInputs));
+
+        elements.copyBtn.addEventListener('click', copySummary);
+        syncFromInputs();
+    </script>
+</body>
+</html>
